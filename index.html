@@ -54,6 +54,15 @@ h1{
   text-align:right;
 }
 
+.bismillah{
+  text-align:center;
+  font-size:34px;
+  line-height:2.2;
+  margin-bottom:18px;
+  color:#172018;
+  font-weight:500;
+}
+
 button{
   border:0;
   border-radius:12px;
@@ -215,7 +224,6 @@ button:disabled{
 
 <body>
 
-
 <div class="wrap">
 
 <h1>
@@ -260,8 +268,6 @@ button:disabled{
   </div>
 
 
-  <!-- Progress -->
-
   <div class="progress">
 
     <div
@@ -276,7 +282,7 @@ button:disabled{
     class="progress-text"
     id="progressText">
 
-    0 / 112 الفاظ
+    0 / 119 الفاظ
 
   </div>
 
@@ -298,8 +304,6 @@ button:disabled{
   </div>
 
 
-  <!-- Live transcript -->
-
   <div class="live-box">
 
     <div class="live-title">
@@ -319,7 +323,9 @@ button:disabled{
 
     ⚠️ آپ کے browser میں Live Speech Recognition
     دستیاب نہیں ہے۔
+
     <br><br>
+
     براہ کرم پہلے <b>Google Chrome</b> یا
     <b>Microsoft Edge</b> میں کوشش کریں۔
 
@@ -328,12 +334,52 @@ button:disabled{
 </div>
 
 
-
 <!-- =====================================================
      QURAN
 ====================================================== -->
 
 <div class="card">
+
+  <!-- بسم اللہ -->
+
+  <div class="bismillah">
+
+    <span
+      class="word"
+      data-idx="0">
+
+      بِسْمِ
+
+    </span>
+
+    <span
+      class="word"
+      data-idx="1">
+
+      اللَّهِ
+
+    </span>
+
+    <span
+      class="word"
+      data-idx="2">
+
+      الرَّحْمَٰنِ
+
+    </span>
+
+    <span
+      class="word"
+      data-idx="3">
+
+      الرَّحِيمِ
+
+    </span>
+
+  </div>
+
+
+  <!-- سورۃ -->
 
   <div
     id="ayah"
@@ -343,17 +389,16 @@ button:disabled{
 </div>
 
 
-
 <!-- =====================================================
      NOTE
 ====================================================== -->
 
 <div class="card small">
 
-  <b>نیا Live طریقہ:</b>
+  <b>Live طریقۂ کار:</b>
 
-  اب ایپ ہر 6 سیکنڈ کی recording بنا کر
-  Groq کو نہیں بھیجتی۔
+  ایپ اب 6 سیکنڈ کی recording بنا کر Groq کو
+  بھیجنے کا انتظار نہیں کرتی۔
 
   براؤزر کی Live Speech Recognition
   آپ کی آواز کا متن مسلسل فراہم کرتی ہے،
@@ -362,47 +407,53 @@ button:disabled{
 
   <br><br>
 
-  <b>🟡 زرد نشان:</b>
-  وہ لفظ جو ابھی پڑھنا ہے۔
+  <b>🟡 زرد:</b>
+  موجودہ لفظ۔
 
   <br>
 
   <b>🟢 سبز:</b>
-  جو لفظ صحیح طور پر match ہو چکا ہے۔
+  صحیح match ہو چکا ہے۔
 
   <br>
 
   <b>🔴 سرخ:</b>
-  جہاں ایپ کو mismatch یا چھوڑا ہوا لفظ محسوس ہوا۔
+  mismatch یا چھوڑا ہوا لفظ۔
+
+  <br><br>
+
+  <b>نوٹ:</b>
+  اگر آپ کسی لفظ کو لمبا کھینچ کر پڑھیں،
+  مثلاً لفظ کی آواز کو زیادہ دیر جاری رکھیں،
+  تو Live recognition کے بار بار آنے والے
+  ایک ہی لفظ کو دوبارہ count نہیں کیا جائے گا۔
 
 </div>
 
-
 </div>
-
 
 
 <script>
 
 /* ============================================================
+   بسم اللہ
+============================================================ */
+
+const BISMILLAH =
+"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
+
+
+/* ============================================================
    سورۃ البروج
 ============================================================ */
 
-const fullSurah =
+const SURAH_TEXT =
 "وَالسَّمَاءِ ذَاتِ الْبُرُوجِ وَالْيَوْمِ الْمَوْعُودِ وَشَاهِدٍ وَمَشْهُودٍ قُتِلَ أَصْحَابُ الْأُخْدُودِ النَّارِ ذَاتِ الْوَقُودِ إِذْ هُمْ عَلَيْهَا قُعُودٌ وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِالْمُؤْمِنِينَ شُهُودٌ وَمَا نَقَمُوا مِنْهُمْ إِلَّا أَنْ يُؤْمِنُوا بِاللَّهِ الْعَزِيزِ الْحَمِيدِ الَّذِي لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ إِنَّ الَّذِينَ فَتَنُوا الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ ثُمَّ لَمْ يَتُوبُوا فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ الْحَرِيقِ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ جَنَّاتٌ تَجْرِي مِنْ تَحْتِهَا الْأَنْهَارُ ذَٰلِكَ الْفَوْزُ الْكَبِيرُ إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ وَهُوَ الْغَفُورُ الْوَدُودُ ذُو الْعَرْشِ الْمَجِيدُ فَعَّالٌ لِمَا يُرِيدُ هَلْ أَتَاكَ حَدِيثُ الْجُنُودِ فِرْعَوْنَ وَثَمُودَ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّهُ مِنْ وَرَائِهِمْ مُحِيطٌ بَلْ هُوَ قُرْآنٌ مَجِيدٌ فِي لَوْحٍ مَحْفُوظٍ";
 
 
 /* ============================================================
-   BROWSER SPEECH RECOGNITION
+   SPEECH RECOGNITION
 ============================================================ */
-
-/*
-   Chrome میں عموماً webkitSpeechRecognition
-   دستیاب ہوتا ہے۔
-
-   کچھ browsers میں SpeechRecognition
-   براہ راست ہوتا ہے۔
-*/
 
 const SpeechRecognition =
   window.SpeechRecognition ||
@@ -417,41 +468,62 @@ let recognition = null;
 
 let listening = false;
 
+
+/*
+   مکمل target:
+
+   پہلے بسم اللہ کے 4 الفاظ
+   پھر سورۃ کے الفاظ
+*/
+
 let targetWords = [];
 
 let targetNormalized = [];
+
+
+/*
+   اگلا مطلوبہ لفظ
+*/
 
 let nextTargetIndex = 0;
 
 
 /*
-   ہر recognition result کا live متن
-   یہاں محفوظ ہوگا۔
+   SpeechRecognition result buffers
 */
 
 let resultBuffers = {};
 
 
 /*
-   آخری final result index
-*/
-
-let lastFinalResultIndex = -1;
-
-
-/*
-   interim result کے لیے
-   پہلے سے استعمال شدہ الفاظ۔
+   ہر result میں کتنے الفاظ پہلے process ہو چکے
 */
 
 let interimConsumed = {};
 
 
 /*
-   موجودہ live transcript
+   Live transcript
 */
 
 let currentLiveText = "";
+
+
+/*
+   کتنے آخری الفاظ پہلے ہی match ہو چکے ہیں۔
+
+   لمبے کھینچے ہوئے لفظ کے duplicate
+   روکنے کے لیے اہم ہے۔
+*/
+
+let recentMatchedWords = [];
+
+
+/*
+   آخری match کا target index
+*/
+
+let lastMatchedTargetIndex = -1;
 
 
 /*
@@ -462,20 +534,25 @@ const SEARCH_WINDOW = 7;
 
 
 /*
-   صحیح match کے لیے threshold
-
-   exact match ہمیشہ 1 ہوگا۔
+   صحیح match threshold
 */
 
 const GOOD_MATCH = 0.72;
 
 
 /*
-   بہت چھوٹے الفاظ پر fuzzy matching
-   استعمال نہیں کریں گے۔
+   بہت چھوٹے الفاظ میں fuzzy matching نہ کریں۔
 */
 
 const MIN_FUZZY_LENGTH = 3;
+
+
+/*
+   Duplicate روکنے کے لیے
+   حالیہ چند الفاظ۔
+*/
+
+const DUPLICATE_MEMORY = 4;
 
 
 /* ============================================================
@@ -507,7 +584,6 @@ const stopButton =
   document.getElementById("stop");
 
 
-
 /* ============================================================
    NORMALIZE
 ============================================================ */
@@ -521,32 +597,54 @@ function normalize(text){
     /*
       حرکات ختم
     */
+
     .replace(
       /[\u064B-\u065F\u0670\u06D6-\u06ED]/g,
       ""
     )
 
     /*
-      عربی حروف normalize
+      عربی حروف
     */
-    .replace(/[إأٱآ]/g,"ا")
 
-    .replace(/ى/g,"ی")
+    .replace(
+      /[إأٱآ]/g,
+      "ا"
+    )
 
-    .replace(/ي/g,"ی")
+    .replace(
+      /ى/g,
+      "ی"
+    )
 
-    .replace(/ؤ/g,"و")
+    .replace(
+      /ي/g,
+      "ی"
+    )
 
-    .replace(/ئ/g,"ی")
+    .replace(
+      /ؤ/g,
+      "و"
+    )
+
+    .replace(
+      /ئ/g,
+      "ی"
+    )
 
     /*
       Tatweel
     */
-    .replace(/ـ/g,"")
+
+    .replace(
+      /ـ/g,
+      ""
+    )
 
     /*
-      قرآن کی بعض علامات
+      قرآنی علامات
     */
+
     .replace(
       /[ۖۗۚۛۜۙۘ۞]/g,
       ""
@@ -555,14 +653,16 @@ function normalize(text){
     /*
       punctuation
     */
+
     .replace(
       /[،؛,.!?؟]/g,
       " "
     )
 
     /*
-      عربی کے علاوہ punctuation ختم
+      صرف عربی حروف
     */
+
     .replace(
       /[^\u0600-\u06FF\s]/g,
       " "
@@ -612,25 +712,25 @@ function similarity(a,b){
     return 0;
   }
 
-  /*
-    بہت چھوٹے الفاظ میں
-    fuzzy matching خطرناک ہے۔
-  */
-
   if(
     a.length < MIN_FUZZY_LENGTH ||
     b.length < MIN_FUZZY_LENGTH
   ){
 
     return 0;
+
   }
 
 
   const longer =
-    a.length > b.length ? a : b;
+    a.length > b.length
+      ? a
+      : b;
 
   const shorter =
-    a.length > b.length ? b : a;
+    a.length > b.length
+      ? b
+      : a;
 
 
   const matrix = [];
@@ -672,8 +772,8 @@ function similarity(a,b){
 
       const cost =
         shorter[i-1] === longer[j-1]
-        ? 0
-        : 1;
+          ? 0
+          : 1;
 
 
       matrix[i][j] =
@@ -725,15 +825,6 @@ function wordMatch(
   }
 
 
-  /*
-    Browser speech recognition
-    بعض اوقات ال کو الگ/مختلف انداز
-    میں لکھ سکتا ہے۔
-
-    اس لیے صرف نسبتاً بڑے الفاظ
-    fuzzy match کریں گے۔
-  */
-
   if(
     target.length < MIN_FUZZY_LENGTH ||
     spoken.length < MIN_FUZZY_LENGTH
@@ -753,32 +844,78 @@ function wordMatch(
 
 
 /* ============================================================
-   RENDER QURAN
+   BUILD TARGET
 ============================================================ */
 
-function renderSurah(){
+function buildTarget(){
 
-  targetWords =
-    fullSurah
+  /*
+    بسم اللہ + سورۃ
+  */
+
+  const bismillahWords =
+    BISMILLAH
+      .split(/\s+/);
+
+
+  const surahWords =
+    SURAH_TEXT
       .trim()
       .split(/\s+/);
 
 
+  targetWords = [
+    ...bismillahWords,
+    ...surahWords
+  ];
+
+
   targetNormalized =
     targetWords.map(
-      word => normalize(word)
+      word =>
+        normalize(word)
+    );
+
+
+}
+
+
+/* ============================================================
+   RENDER SURAH
+============================================================ */
+
+function renderSurah(){
+
+  /*
+    صرف سورۃ کے الفاظ یہاں render ہوں گے۔
+
+    بسم اللہ پہلے سے HTML میں موجود ہے۔
+  */
+
+  const surahStartIndex =
+    4;
+
+
+  const surahWords =
+    targetWords.slice(
+      surahStartIndex
     );
 
 
   ayahEl.innerHTML =
-    targetWords
+    surahWords
       .map(
         (word,index) => {
+
+          const actualIndex =
+            index +
+            surahStartIndex;
+
 
           return `
             <span
               class="word"
-              data-idx="${index}">
+              data-idx="${actualIndex}">
               ${word}
             </span>
           `;
@@ -789,6 +926,19 @@ function renderSurah(){
 
 
   updateProgress();
+
+}
+
+
+/* ============================================================
+   GET ALL WORD SPANS
+============================================================ */
+
+function getAllWordSpans(){
+
+  return document.querySelectorAll(
+    ".word"
+  );
 
 }
 
@@ -812,11 +962,11 @@ function updateProgress(){
 
   const percent =
     total === 0
-    ? 0
-    : (
-        done /
-        total
-      ) * 100;
+      ? 0
+      : (
+          done /
+          total
+        ) * 100;
 
 
   progressBar.style.width =
@@ -836,7 +986,7 @@ function updateProgress(){
 function showCurrentWord(){
 
   const spans =
-    ayahEl.querySelectorAll(".word");
+    getAllWordSpans();
 
 
   spans.forEach(
@@ -852,7 +1002,7 @@ function showCurrentWord(){
 
   if(
     nextTargetIndex >=
-    spans.length
+    targetWords.length
   ){
 
     return;
@@ -860,21 +1010,40 @@ function showCurrentWord(){
   }
 
 
-  const current =
-    spans[
-      nextTargetIndex
-    ];
+  /*
+    data-idx کے ذریعے اصل word تلاش کریں۔
+  */
+
+  let current = null;
+
+
+  spans.forEach(
+    span => {
+
+      if(
+        Number(
+          span.dataset.idx
+        ) ===
+        nextTargetIndex
+      ){
+
+        current = span;
+
+      }
+
+    }
+  );
+
+
+  if(!current){
+    return;
+  }
 
 
   current.classList.add(
     "current"
   );
 
-
-  /*
-    موبائل پر موجودہ لفظ
-    خود نظر میں لائیں۔
-  */
 
   try{
 
@@ -884,6 +1053,47 @@ function showCurrentWord(){
     });
 
   }catch(e){}
+
+}
+
+
+/* ============================================================
+   DUPLICATE CHECK
+============================================================ */
+
+function isRecentDuplicate(
+  spokenWord
+){
+
+  return recentMatchedWords
+    .includes(
+      spokenWord
+    );
+
+}
+
+
+/* ============================================================
+   ADD RECENT WORD
+============================================================ */
+
+function rememberMatchedWord(
+  spokenWord
+){
+
+  recentMatchedWords.push(
+    spokenWord
+  );
+
+
+  if(
+    recentMatchedWords.length >
+    DUPLICATE_MEMORY
+  ){
+
+    recentMatchedWords.shift();
+
+  }
 
 }
 
@@ -952,7 +1162,7 @@ function findBestTarget(
 
 
 /* ============================================================
-   MARK WORD CORRECT
+   MARK CORRECT
 ============================================================ */
 
 function markCorrect(
@@ -960,38 +1170,38 @@ function markCorrect(
 ){
 
   const spans =
-    ayahEl.querySelectorAll(
-      ".word"
-    );
+    getAllWordSpans();
 
 
-  if(
-    !spans[index]
-  ){
+  spans.forEach(
+    span => {
 
-    return;
+      if(
+        Number(
+          span.dataset.idx
+        ) === index
+      ){
 
-  }
+        span.classList.remove(
+          "bad",
+          "current",
+          "skipped"
+        );
 
+        span.classList.add(
+          "ok"
+        );
 
-  spans[index]
-    .classList.remove(
-      "bad",
-      "current",
-      "skipped"
-    );
+      }
 
-
-  spans[index]
-    .classList.add(
-      "ok"
-    );
+    }
+  );
 
 }
 
 
 /* ============================================================
-   MARK SKIPPED WORDS
+   MARK SKIPPED
 ============================================================ */
 
 function markSkipped(
@@ -1000,41 +1210,41 @@ function markSkipped(
 ){
 
   const spans =
-    ayahEl.querySelectorAll(
-      ".word"
-    );
+    getAllWordSpans();
 
 
-  for(
-    let i=from;
-    i<to;
-    i++
-  ){
+  spans.forEach(
+    span => {
 
-    if(
-      spans[i]
-    ){
+      const index =
+        Number(
+          span.dataset.idx
+        );
 
-      spans[i]
-        .classList.remove(
+
+      if(
+        index >= from &&
+        index < to
+      ){
+
+        span.classList.remove(
           "current"
         );
 
-
-      spans[i]
-        .classList.add(
+        span.classList.add(
           "bad"
         );
 
-    }
+      }
 
-  }
+    }
+  );
 
 }
 
 
 /* ============================================================
-   MATCH ONE SPOKEN WORD
+   MATCH ONE WORD
 ============================================================ */
 
 function matchOneWord(
@@ -1044,6 +1254,24 @@ function matchOneWord(
 
   if(
     !spokenWord
+  ){
+
+    return false;
+
+  }
+
+
+  /*
+    اگر یہی لفظ ابھی ابھی match ہوا تھا
+    تو دوبارہ آگے نہیں بڑھائیں گے۔
+
+    یہی long-word duplicate کا اہم حل ہے۔
+  */
+
+  if(
+    isRecentDuplicate(
+      spokenWord
+    )
   ){
 
     return false;
@@ -1067,10 +1295,6 @@ function matchOneWord(
     );
 
 
-  /*
-    Match نہیں ملا
-  */
-
   if(
     result.index === -1 ||
     result.score < GOOD_MATCH
@@ -1082,8 +1306,7 @@ function matchOneWord(
 
 
   /*
-    اگر target سے آگے match ملا
-    تو درمیان کے الفاظ skip ہوئے۔
+    اگر match موجودہ target سے آگے ملا
   */
 
   if(
@@ -1092,11 +1315,8 @@ function matchOneWord(
   ){
 
     /*
-      Live interim میں فوراً سرخ
-      کرنے سے بچیں گے۔
-
       صرف final recognition میں
-      skipped الفاظ کو mark کریں۔
+      skipped words کو سرخ کریں۔
     */
 
     if(isFinal){
@@ -1112,7 +1332,7 @@ function matchOneWord(
 
 
   /*
-    صحیح word
+    صحیح لفظ
   */
 
   markCorrect(
@@ -1121,11 +1341,24 @@ function matchOneWord(
 
 
   /*
-    اگلے لفظ پر جائیں
+    اگلا لفظ
   */
 
   nextTargetIndex =
     result.index + 1;
+
+
+  /*
+    duplicate memory
+  */
+
+  rememberMatchedWord(
+    spokenWord
+  );
+
+
+  lastMatchedTargetIndex =
+    result.index;
 
 
   updateProgress();
@@ -1134,7 +1367,7 @@ function matchOneWord(
 
 
   /*
-    مکمل سورت
+    مکمل
   */
 
   if(
@@ -1162,6 +1395,50 @@ function matchOneWord(
 
 
 /* ============================================================
+   REMOVE TRANSCRIPT DUPLICATES
+============================================================ */
+
+function removeConsecutiveDuplicates(
+  arr
+){
+
+  const result = [];
+
+
+  for(
+    const word of arr
+  ){
+
+    /*
+      ایک ہی لفظ مسلسل دوبارہ آیا ہو
+      تو صرف ایک رکھیں۔
+    */
+
+    if(
+      result.length > 0 &&
+      result[
+        result.length - 1
+      ] === word
+    ){
+
+      continue;
+
+    }
+
+
+    result.push(
+      word
+    );
+
+  }
+
+
+  return result;
+
+}
+
+
+/* ============================================================
    PROCESS NEW WORDS
 ============================================================ */
 
@@ -1171,7 +1448,7 @@ function processNewWords(
   isFinal
 ){
 
-  const currentWords =
+  let currentWords =
     words(text);
 
 
@@ -1185,17 +1462,29 @@ function processNewWords(
 
 
   /*
-    اس result کے پہلے استعمال کیے گئے
-    الفاظ معلوم کریں۔
+    مسلسل duplicate ختم
   */
 
-  const oldCount =
-    interimConsumed[resultIndex] || 0;
+  currentWords =
+    removeConsecutiveDuplicates(
+      currentWords
+    );
 
 
   /*
-    اگر transcript میں نئے الفاظ آئے ہیں
-    تو صرف نئے الفاظ process کریں۔
+    اس result میں پہلے کتنے
+    words process ہو چکے ہیں۔
+  */
+
+  const oldCount =
+    interimConsumed[
+      resultIndex
+    ] || 0;
+
+
+  /*
+    اگر browser نے وہی transcript
+    دوبارہ بھیجا تو دوبارہ process نہ کریں۔
   */
 
   if(
@@ -1214,13 +1503,18 @@ function processNewWords(
     );
 
 
-  /*
-    اب نئے الفاظ process کریں۔
-  */
-
   for(
     const spokenWord of newWords
   ){
+
+    /*
+      ایک اہم مسئلہ:
+
+      اگر speech recognition لمبا لفظ
+      بولنے کے دوران بار بار وہی لفظ
+      بھیجے تو duplicate memory
+      اسے دوبارہ count نہیں ہونے دے گی۔
+    */
 
     const matched =
       matchOneWord(
@@ -1228,14 +1522,6 @@ function processNewWords(
         isFinal
       );
 
-
-    /*
-      Live mode میں اگر لفظ match نہیں ہوا
-      تو target آگے نہیں بڑھے گا۔
-
-      اگلے recognition update میں
-      بہتر transcript آنے کا انتظار ہوگا۔
-    */
 
     if(matched){
 
@@ -1251,11 +1537,13 @@ function processNewWords(
 
 
   /*
-    موجودہ result کے کتنے الفاظ
-    دیکھ لیے گئے۔
+    نئے transcript کے مطابق
+    processed count محفوظ کریں۔
   */
 
-  interimConsumed[resultIndex] =
+  interimConsumed[
+    resultIndex
+  ] =
     currentWords.length;
 
 }
@@ -1268,16 +1556,21 @@ function processNewWords(
 function rebuildLiveText(){
 
   const allResults =
-    Object.keys(resultBuffers)
+    Object.keys(
+      resultBuffers
+    )
+
       .sort(
         (a,b) =>
           Number(a) -
           Number(b)
       )
+
       .map(
         key =>
           resultBuffers[key]
       )
+
       .filter(Boolean);
 
 
@@ -1299,13 +1592,6 @@ function rebuildLiveText(){
 function handleSpeechResult(
   event
 ){
-
-  /*
-    SpeechRecognition کا result
-    مسلسل آتا رہتا ہے۔
-
-    ہر result کا index الگ ہوتا ہے۔
-  */
 
   for(
     let i=event.resultIndex;
@@ -1345,7 +1631,7 @@ function handleSpeechResult(
 
 
     /*
-      Live display
+      Live text buffer
     */
 
     resultBuffers[i] =
@@ -1356,7 +1642,7 @@ function handleSpeechResult(
 
 
     /*
-      نئے الفاظ process کریں
+      نئے الفاظ match
     */
 
     processNewWords(
@@ -1364,18 +1650,6 @@ function handleSpeechResult(
       transcript,
       isFinal
     );
-
-
-    /*
-      Final result کو record کریں۔
-    */
-
-    if(isFinal){
-
-      lastFinalResultIndex =
-        i;
-
-    }
 
   }
 
@@ -1427,9 +1701,7 @@ function handleSpeechError(
     case "no-speech":
 
       /*
-        یہ مستقل خرابی نہیں۔
-        recognition خود دوبارہ شروع ہو سکتی ہے۔
-        اس لیے error message نہیں دکھائیں گے۔
+        اس پر کوئی error نہیں دکھائیں گے۔
       */
 
       break;
@@ -1531,7 +1803,9 @@ function createRecognition(){
 
 
   /*
-    مسلسل recognition
+    continuous:
+
+    recognition مسلسل چلتی رہے۔
   */
 
   r.continuous =
@@ -1539,11 +1813,9 @@ function createRecognition(){
 
 
   /*
-    interim results بہت اہم ہیں۔
+    interimResults:
 
-    یہی Live marker کو
-    final response کا انتظار کیے بغیر
-    آگے لے جاتے ہیں۔
+    final result کا انتظار نہ کرے۔
   */
 
   r.interimResults =
@@ -1551,16 +1823,12 @@ function createRecognition(){
 
 
   /*
-    عربی recognition
+    عربی
   */
 
   r.lang =
     "ar-SA";
 
-
-  /*
-    کچھ browsers زیادہ results دیتے ہیں۔
-  */
 
   r.maxAlternatives =
     1;
@@ -1584,7 +1852,7 @@ function createRecognition(){
 
 
 /* ============================================================
-   START RECOGNITION ENGINE
+   START ENGINE
 ============================================================ */
 
 function startRecognitionEngine(){
@@ -1608,6 +1876,7 @@ function startRecognitionEngine(){
 
     recognition.start();
 
+
     statusEl.textContent =
       "🎙️ Live سن رہا ہوں — پڑھنا شروع کریں";
 
@@ -1615,13 +1884,6 @@ function startRecognitionEngine(){
       "#176b3a";
 
   }catch(error){
-
-    /*
-      اگر recognition پہلے سے چل رہی ہو
-      تو start() InvalidStateError دے سکتا ہے۔
-
-      اس صورت میں اسے ignore کریں۔
-    */
 
     console.log(
       "Recognition start:",
@@ -1634,14 +1896,10 @@ function startRecognitionEngine(){
 
 
 /* ============================================================
-   START
+   START LISTENING
 ============================================================ */
 
 function startListening(){
-
-  /*
-    Browser support
-  */
 
   if(!SpeechRecognition){
 
@@ -1660,17 +1918,20 @@ function startListening(){
 
 
   /*
-    پہلے reset
+    Reset
   */
 
-  resetMatching(false);
+  resetMatching(
+    false
+  );
 
 
-  listening = true;
+  listening =
+    true;
 
 
   /*
-    Recognition کی نئی state
+    نئی recognition
   */
 
   recognition =
@@ -1679,16 +1940,13 @@ function startListening(){
 
   if(!recognition){
 
-    listening = false;
+    listening =
+      false;
 
     return;
 
   }
 
-
-  /*
-    فوراً شروع کریں
-  */
 
   startRecognitionEngine();
 
@@ -1701,12 +1959,11 @@ function startListening(){
 
 function stopRecognition(){
 
-  listening = false;
+  listening =
+    false;
 
 
-  if(
-    recognition
-  ){
+  if(recognition){
 
     try{
 
@@ -1731,7 +1988,7 @@ function stopRecognition(){
 
 
 /* ============================================================
-   RESET MATCHING
+   RESET
 ============================================================ */
 
 function resetMatching(
@@ -1739,24 +1996,20 @@ function resetMatching(
 ){
 
   /*
-    اگر چل رہی ہو تو بند
+    recognition بند
   */
 
-  if(
-    listening
-  ){
+  listening =
+    false;
 
-    listening = false;
 
-    if(recognition){
+  if(recognition){
 
-      try{
+    try{
 
-        recognition.stop();
+      recognition.stop();
 
-      }catch(e){}
-
-    }
+    }catch(e){}
 
   }
 
@@ -1765,22 +2018,31 @@ function resetMatching(
     0;
 
 
-  resultBuffers = {};
+  resultBuffers =
+    {};
 
-  interimConsumed = {};
+  interimConsumed =
+    {};
+
 
   currentLiveText =
     "";
 
 
+  recentMatchedWords =
+    [];
+
+
+  lastMatchedTargetIndex =
+    -1;
+
+
   /*
-    قرآن کے رنگ صاف کریں
+    تمام colors صاف
   */
 
   const spans =
-    ayahEl.querySelectorAll(
-      ".word"
-    );
+    getAllWordSpans();
 
 
   spans.forEach(
@@ -1866,7 +2128,7 @@ async () => {
 
 
 /* ============================================================
-   START BUTTON
+   BUTTONS
 ============================================================ */
 
 startButton.onclick =
@@ -1877,10 +2139,6 @@ startButton.onclick =
 };
 
 
-/* ============================================================
-   STOP BUTTON
-============================================================ */
-
 stopButton.onclick =
 () => {
 
@@ -1888,10 +2146,6 @@ stopButton.onclick =
 
 };
 
-
-/* ============================================================
-   RESET BUTTON
-============================================================ */
 
 document.getElementById(
   "reset"
@@ -1907,13 +2161,15 @@ document.getElementById(
    INITIALIZE
 ============================================================ */
 
+buildTarget();
+
 renderSurah();
 
 showCurrentWord();
 
 
 /*
-  Browser support check
+  Browser support
 */
 
 if(!SpeechRecognition){
@@ -1921,8 +2177,10 @@ if(!SpeechRecognition){
   supportBox.style.display =
     "block";
 
+
   statusEl.textContent =
-    "⚠️ Live Speech Recognition اس browser میں دستیاب نہیں۔";
+    "⚠️ اس browser میں Live Speech Recognition دستیاب نہیں۔";
+
 
   statusEl.style.color =
     "#8a6d31";
@@ -1930,12 +2188,16 @@ if(!SpeechRecognition){
 }
 
 
-/* ============================================================
-   DEBUG
-============================================================ */
+/*
+  Debug
+*/
 
 console.log(
-  "Live Quran Matching loaded."
+  "================================"
+);
+
+console.log(
+  "Live Quran Matching"
 );
 
 console.log(
@@ -1944,8 +2206,17 @@ console.log(
 );
 
 console.log(
-  "Total Quran words:",
+  "Total words:",
   targetWords.length
+);
+
+console.log(
+  "Bismillah included:",
+  true
+);
+
+console.log(
+  "================================"
 );
 
 </script>
