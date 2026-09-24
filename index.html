@@ -14,6 +14,7 @@
   button{border:0;border-radius:12px;padding:13px 17px;font-size:17px;margin:4px;cursor:pointer}
   #start{background:#176b3a;color:#fff}
   #stop{background:#a52b2b;color:#fff}
+  #reset{background:#8a6d31;color:#fff}
   #status{font-weight:700;text-align:center;margin:10px 0;font-size:15px}
   .word{padding:2px 4px;border-radius:6px;transition:background 0.2s}
   .word.ok{color:#176b3a}
@@ -31,6 +32,7 @@
   <div class="card controls">
     <button id="start">🎙️ سننا شروع کریں</button>
     <button id="micTest" style="background:#315a8a;color:#fff">🎤 مائیک چیک کریں</button>
+    <button id="reset">🔄 ری سیٹ کریں</button>
     <button id="stop">⏹️ بند کریں</button>
     <div id="status">تیار ہے</div>
   </div>
@@ -40,7 +42,7 @@
   </div>
 
   <div class="card small">
-    <b>نوٹ:</b> جب آپ صحیح پڑھیں گے تو الفاظ سبز ہوں گے، اور جب غلط پڑھیں گے تو وہ لفظ لال ہو جائے گا۔
+    <b>نوٹ:</b> جب آپ صحیح پڑھیں گے تو الفاظ سبز ہوں گے، اور جب غلط پڑھیں گے تو وہ لفظ لال ہو جائے گا۔ اگر آپ غلط لفظ کو دوبارہ صحیح پڑھیں گے تو وہ خود بخود سبز ہو جائے گا۔ "ری سیٹ" بٹن سے ساری لکھائی صاف ہو جائے گی۔
   </div>
 </div>
 
@@ -51,6 +53,7 @@ let targetWords = [];
 let targetNormalized = [];
 let recognition=null, listening=false;
 let finalText="", interimText="";
+let spokenWords = []; // صارف کے پڑھے گئے الفاظ کا ریکارڈ
 
 const ayahEl=document.getElementById("ayah");
 const statusEl=document.getElementById("status");
@@ -77,14 +80,13 @@ function removeRepeatedWords(arr){
   return cleaned;
 }
 
-// ✅ نرم موازنہ: دو الفاظ میں کتنے فیصد مماثلت ہے
+// ✅ نرم موازنہ (70% مماثلت)
 function similarity(a, b){
   if(a === b) return 1.0;
   if(!a || !b) return 0.0;
   const longer = a.length > b.length ? a : b;
   const shorter = a.length > b.length ? b : a;
   if(longer.length === 0) return 1.0;
-  // Levenshtein distance
   const matrix = [];
   for(let i=0; i<=shorter.length; i++) matrix[i] = [i];
   for(let j=0; j<=longer.length; j++) matrix[0][j] = j;
@@ -102,10 +104,8 @@ function similarity(a, b){
   return (longer.length - distance) / longer.length;
 }
 
-// ✅ ہر لفظ کا نرم موازنہ (کم از کم 70% مماثلت)
 function fuzzyMatch(target, got){
-  const sim = similarity(target, got);
-  return sim >= 0.7; // 70% یا اس سے زیادہ مماثلت
+  return similarity(target, got) >= 0.7;
 }
 
 function renderSurah(){
@@ -117,10 +117,21 @@ function renderSurah(){
   targetNormalized = words(fullSurah);
 }
 
-function highlightWords(spoken){
-  const got = removeRepeatedWords(words(spoken));
+// ✅ ری سیٹ فنکشن: ساری لکھائی صاف کر دیں
+function resetAll(){
+  finalText=""; interimText=""; spokenWords=[];
+  const spans = ayahEl.querySelectorAll(".word");
+  spans.forEach(s => s.classList.remove("ok","bad","current"));
+  statusEl.textContent = "🔄 ری سیٹ ہو گیا — دوبارہ شروع کریں";
+  statusEl.style.color = "#8a6d31";
+}
+
+// ✅ ہائی لائٹ فنکشن (اب صرف "ابھی پڑھے گئے" الفاظ کو دیکھتا ہے)
+function highlightWords(){
+  const got = spokenWords; // صرف وہ الفاظ جو صارف نے پڑھے
   const spans = ayahEl.querySelectorAll(".word");
   
+  // پہلے سب کو reset کریں (تاکہ لال نشان خود بخود ختم ہو جائے)
   spans.forEach(s => s.classList.remove("ok","bad","current"));
   
   let errors = 0;
@@ -129,33 +140,31 @@ function highlightWords(spoken){
   for(let k=0; k<got.length; k++){
     if(k < targetNormalized.length){
       const span = spans[k];
-      // ✅ نرم موازنہ استعمال کریں
       if(fuzzyMatch(targetNormalized[k], got[k])){
-        span.classList.add("ok");
+        span.classList.add("ok"); // صحیح → سبز
         lastMatchedIndex = k;
       } else {
-        span.classList.add("bad");
+        span.classList.add("bad"); // غلط → لال
         errors++;
       }
     }
   }
   
+  // اگلا لفظ جو صارف پڑھے گا، اسے ہلکا پیلا کریں
   if(lastMatchedIndex + 1 < spans.length && errors === 0){
     spans[lastMatchedIndex + 1].classList.add("current");
   }
   
+  // ✅ صرف غلطی پر پیغام — صحیح پر خاموش
   if(errors > 0){
-    statusEl.textContent = `⚠️ ${errors} لفظ(وں) میں غلطی — دوبارہ پڑھیں`;
+    statusEl.textContent = `⚠️ ${errors} لفظ(وں) میں غلطی — دوبارہ صحیح پڑھیں`;
     statusEl.style.color = "#b32121";
-    if("speechSynthesis" in window){
-      const u = new SpeechSynthesisUtterance("غلطی");
-      u.lang = "ur-PK"; speechSynthesis.cancel(); speechSynthesis.speak(u);
-    }
   } else {
     statusEl.textContent = "🎙️ سن رہا ہوں…";
     statusEl.style.color = "#176b3a";
   }
   
+  // ✅ پوری سورت مکمل
   if(got.length >= targetNormalized.length && errors === 0){
     statusEl.textContent = "✅ ماشاءاللہ! سورت مکمل";
     statusEl.style.color = "#176b3a";
@@ -171,7 +180,7 @@ function makeRecognition(){
   r.lang="ar-SA"; r.continuous=true; r.interimResults=true;
   
   r.onstart=()=>{
-    listening=true; finalText=""; interimText="";
+    listening=true; finalText=""; interimText=""; spokenWords=[];
     statusEl.textContent="🎙️ سن رہا ہوں…";
     statusEl.style.color = "#176b3a";
   };
@@ -190,9 +199,18 @@ function makeRecognition(){
     }
     interimText = interim;
     
-    const displayText = (finalText + " " + interimText).trim();
-    if(displayText){
-      highlightWords(displayText);
+    // ✅ صرف "ابھی کے" الفاظ لیں (پرانے نہیں)
+    const currentText = (finalText + " " + interimText).trim();
+    if(currentText){
+      // صارف کے پڑھے ہوئے الفاظ (دہرائے گئے ہٹا کر)
+      let got = words(currentText);
+      got = removeRepeatedWords(got);
+      
+      // ✅ اگر صارف نے پچھلے لفظ کو دوبارہ پڑھا ہے تو اسے اپڈیٹ کریں
+      // (یعنی پرانا لال نشان ختم ہو جائے گا)
+      spokenWords = got;
+      
+      highlightWords();
     }
   };
   return r;
@@ -215,13 +233,14 @@ document.getElementById("micTest").onclick=async()=>{
 };
 document.getElementById("start").onclick=()=>{
   if(!recognition) recognition=makeRecognition();
-  if(recognition){listening=true;finalText="";interimText="";try{recognition.start()}catch(e){}}
+  if(recognition){listening=true;finalText="";interimText="";spokenWords=[];try{recognition.start()}catch(e){}}
 };
 document.getElementById("stop").onclick=()=>{
   listening=false;
   if(recognition) recognition.stop();
   statusEl.textContent="سننا بند";
 };
+document.getElementById("reset").onclick=resetAll;
 
 renderSurah();
 </script>
