@@ -42,7 +42,7 @@
   </div>
 
   <div class="card small">
-    <b>نوٹ:</b> جب آپ صحیح پڑھیں گے تو الفاظ سبز ہوں گے، اور جب غلط پڑھیں گے تو وہ لفظ لال ہو جائے گا۔ اگر آپ غلط لفظ کو دوبارہ صحیح پڑھیں گے تو وہ خود بخود سبز ہو جائے گا۔ "ری سیٹ" بٹن سے ساری لکھائی صاف ہو جائے گی۔
+    <b>نوٹ:</b> جب آپ کوئی لفظ غلط پڑھیں گے تو وہ لال ہو جائے گا۔ اگر آپ پیچھے سے دوبارہ صحیح پڑھیں گے تو وہ خود بخود سبز ہو جائے گا۔
   </div>
 </div>
 
@@ -53,7 +53,7 @@ let targetWords = [];
 let targetNormalized = [];
 let recognition=null, listening=false;
 let finalText="", interimText="";
-let spokenWords = []; // صارف کے پڑھے گئے الفاظ کا ریکارڈ
+let allSpokenWords = []; // صارف کے پڑھے گئے تمام الفاظ کا ریکارڈ
 
 const ayahEl=document.getElementById("ayah");
 const statusEl=document.getElementById("status");
@@ -117,25 +117,27 @@ function renderSurah(){
   targetNormalized = words(fullSurah);
 }
 
-// ✅ ری سیٹ فنکشن: ساری لکھائی صاف کر دیں
+// ✅ ری سیٹ فنکشن
 function resetAll(){
-  finalText=""; interimText=""; spokenWords=[];
+  finalText=""; interimText=""; allSpokenWords=[];
   const spans = ayahEl.querySelectorAll(".word");
   spans.forEach(s => s.classList.remove("ok","bad","current"));
   statusEl.textContent = "🔄 ری سیٹ ہو گیا — دوبارہ شروع کریں";
   statusEl.style.color = "#8a6d31";
 }
 
-// ✅ ہائی لائٹ فنکشن (اب صرف "ابھی پڑھے گئے" الفاظ کو دیکھتا ہے)
-function highlightWords(){
-  const got = spokenWords; // صرف وہ الفاظ جو صارف نے پڑھے
+// ✅ ہر بار پورے ٹیکسٹ کا موازنہ کریں (تاکہ پرانی غلطیاں خود بخود درست ہو جائیں)
+function highlightAll(){
   const spans = ayahEl.querySelectorAll(".word");
   
-  // پہلے سب کو reset کریں (تاکہ لال نشان خود بخود ختم ہو جائے)
+  // پہلے سب کو reset کریں
   spans.forEach(s => s.classList.remove("ok","bad","current"));
   
   let errors = 0;
   let lastMatchedIndex = -1;
+  
+  // صارف کے پڑھے ہوئے تمام الفاظ (پہلے سے ریکارڈ شدہ + ابھی کے)
+  const got = allSpokenWords;
   
   for(let k=0; k<got.length; k++){
     if(k < targetNormalized.length){
@@ -155,7 +157,6 @@ function highlightWords(){
     spans[lastMatchedIndex + 1].classList.add("current");
   }
   
-  // ✅ صرف غلطی پر پیغام — صحیح پر خاموش
   if(errors > 0){
     statusEl.textContent = `⚠️ ${errors} لفظ(وں) میں غلطی — دوبارہ صحیح پڑھیں`;
     statusEl.style.color = "#b32121";
@@ -164,7 +165,6 @@ function highlightWords(){
     statusEl.style.color = "#176b3a";
   }
   
-  // ✅ پوری سورت مکمل
   if(got.length >= targetNormalized.length && errors === 0){
     statusEl.textContent = "✅ ماشاءاللہ! سورت مکمل";
     statusEl.style.color = "#176b3a";
@@ -180,7 +180,7 @@ function makeRecognition(){
   r.lang="ar-SA"; r.continuous=true; r.interimResults=true;
   
   r.onstart=()=>{
-    listening=true; finalText=""; interimText=""; spokenWords=[];
+    listening=true; finalText=""; interimText=""; allSpokenWords=[];
     statusEl.textContent="🎙️ سن رہا ہوں…";
     statusEl.style.color = "#176b3a";
   };
@@ -199,18 +199,17 @@ function makeRecognition(){
     }
     interimText = interim;
     
-    // ✅ صرف "ابھی کے" الفاظ لیں (پرانے نہیں)
+    // ✅ صارف کے پڑھے ہوئے تمام الفاظ کا ریکارڈ بنائیں
     const currentText = (finalText + " " + interimText).trim();
     if(currentText){
-      // صارف کے پڑھے ہوئے الفاظ (دہرائے گئے ہٹا کر)
       let got = words(currentText);
       got = removeRepeatedWords(got);
       
-      // ✅ اگر صارف نے پچھلے لفظ کو دوبارہ پڑھا ہے تو اسے اپڈیٹ کریں
-      // (یعنی پرانا لال نشان ختم ہو جائے گا)
-      spokenWords = got;
+      // ✅ اگر صارف نے پیچھے سے دوبارہ پڑھا ہے، تو پورا ٹیکسٹ دوبارہ بنائیں
+      // اس سے پرانی غلطیاں خود بخود درست ہو جائیں گی
+      allSpokenWords = got;
       
-      highlightWords();
+      highlightAll();
     }
   };
   return r;
@@ -233,7 +232,7 @@ document.getElementById("micTest").onclick=async()=>{
 };
 document.getElementById("start").onclick=()=>{
   if(!recognition) recognition=makeRecognition();
-  if(recognition){listening=true;finalText="";interimText="";spokenWords=[];try{recognition.start()}catch(e){}}
+  if(recognition){listening=true;finalText="";interimText="";allSpokenWords=[];try{recognition.start()}catch(e){}}
 };
 document.getElementById("stop").onclick=()=>{
   listening=false;
