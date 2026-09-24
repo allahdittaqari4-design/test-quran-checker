@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="ur" dir="rtl">
+
 <head>
 
 <meta charset="utf-8">
@@ -7,9 +8,13 @@
 <meta name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1">
 
-<title>مصحفِ حفظ — سورۃ البروج | Live Matching</title>
+<title>مصحفِ حفظ — سورۃ البروج | Live + AI</title>
 
 <style>
+
+*{
+  box-sizing:border-box;
+}
 
 body{
   font-family:system-ui,-apple-system,
@@ -54,21 +59,43 @@ h1{
   text-align:right;
 }
 
+
+/* =========================
+   BISMILLAH
+========================= */
+
 .bismillah{
+  display:block;
+  width:100%;
   text-align:center;
-  font-size:34px;
-  line-height:2.2;
-  margin-bottom:18px;
+
+  font-size:36px;
+  line-height:2.3;
+
+  margin:0 0 25px 0;
+  padding:10px 0 15px 0;
+
   color:#172018;
   font-weight:500;
+
+  border-bottom:1px solid #eeeeee;
 }
+
+
+/* =========================
+   BUTTONS
+========================= */
 
 button{
   border:0;
   border-radius:12px;
+
   padding:13px 17px;
+
   font-size:17px;
+
   margin:4px;
+
   cursor:pointer;
 }
 
@@ -97,38 +124,68 @@ button:disabled{
   color:white;
 }
 
+
+/* =========================
+   STATUS
+========================= */
+
 #status{
   font-weight:700;
+
   text-align:center;
+
   margin:10px 0;
+
   font-size:15px;
+
   min-height:24px;
 }
 
+
+/* =========================
+   PROGRESS
+========================= */
+
 .progress{
   height:10px;
+
   background:#e5e9e5;
+
   border-radius:20px;
+
   overflow:hidden;
+
   margin:12px 0 5px;
 }
 
 .progress-bar{
   height:100%;
+
   width:0%;
+
   background:#176b3a;
+
   transition:width .15s;
 }
 
 .progress-text{
   text-align:center;
+
   color:#59645b;
+
   font-size:13px;
 }
 
+
+/* =========================
+   WORDS
+========================= */
+
 .word{
   padding:2px 4px;
+
   border-radius:6px;
+
   transition:
     background .12s,
     color .12s;
@@ -140,123 +197,392 @@ button:disabled{
   color:#176b3a;
 }
 
-.word.bad{
-  color:#b32121;
-  background:#ffe0e0;
-  text-decoration:underline;
-  font-weight:800;
-}
-
 .word.current{
   background:#fff3b0;
+
   color:#172018;
 
   box-shadow:
     0 0 0 2px #e5c94a;
 }
 
-.word.skipped{
+.word.bad{
   color:#b32121;
+
   background:#ffe0e0;
+
   text-decoration:underline;
+
+  font-weight:800;
 }
 
-.small{
-  font-size:13px;
-  color:#6b746c;
-  line-height:1.8;
+
+/*
+   AI کی پکڑی ہوئی غلطی
+*/
+
+.word.ai-bad{
+  color:#b32121;
+
+  background:#ffd1d1;
+
+  text-decoration:underline;
+
+  font-weight:900;
 }
+
+
+/* =========================
+   CONTROLS
+========================= */
 
 .controls{
   text-align:center;
 }
 
+
+/* =========================
+   LIVE BOX
+========================= */
+
 .live-box{
   background:#f2f6ff;
+
   border:1px solid #d7e2f5;
+
   border-radius:12px;
+
   padding:12px;
+
   margin-top:12px;
+
   text-align:right;
 }
 
 .live-title{
   font-weight:700;
+
   color:#315a8a;
+
   margin-bottom:6px;
 }
 
 #liveText{
   font-size:18px;
+
   line-height:1.8;
+
   min-height:32px;
 }
 
-.support-box{
-  padding:12px;
+
+/* =========================
+   AI BOX
+========================= */
+
+.ai-box{
+  background:#f7f1ff;
+
+  border:1px solid #dfd1f4;
+
   border-radius:12px;
-  background:#fff8df;
-  color:#705900;
-  line-height:1.8;
-  margin-top:10px;
-  display:none;
+
+  padding:12px;
+
+  margin-top:12px;
+
+  text-align:right;
 }
+
+.ai-title{
+  font-weight:700;
+
+  color:#6845a5;
+
+  margin-bottom:6px;
+}
+
+#aiText{
+  font-size:18px;
+
+  line-height:1.8;
+
+  min-height:32px;
+}
+
+#aiStatus{
+  font-size:13px;
+
+  color:#6845a5;
+
+  margin-top:7px;
+
+  line-height:1.7;
+}
+
+
+/* =========================
+   INFO
+========================= */
 
 .info{
   display:flex;
+
   gap:8px;
+
   justify-content:center;
+
   flex-wrap:wrap;
+
   margin-top:8px;
 }
 
 .badge{
   background:#eef2ee;
+
   border-radius:20px;
+
   padding:5px 10px;
+
   font-size:12px;
+
   color:#59645b;
+}
+
+
+/* =========================
+   SUPPORT
+========================= */
+
+.support-box{
+  padding:12px;
+
+  border-radius:12px;
+
+  background:#fff8df;
+
+  color:#705900;
+
+  line-height:1.8;
+
+  margin-top:10px;
+
+  display:none;
+}
+
+
+/* =========================
+   SMALL
+========================= */
+
+.small{
+  font-size:13px;
+
+  color:#6b746c;
+
+  line-height:1.8;
+}
+
+
+/* =================================================
+   API KEY SCREEN
+================================================= */
+
+#keyScreen{
+  position:fixed;
+
+  inset:0;
+
+  background:#f5f7f5;
+
+  z-index:99999;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:20px;
+}
+
+.key-card{
+  width:100%;
+
+  max-width:500px;
+
+  background:white;
+
+  border-radius:20px;
+
+  padding:24px;
+
+  box-shadow:0 4px 25px #0002;
+
+  text-align:center;
+}
+
+.key-card h2{
+  margin-top:0;
+}
+
+.key-card p{
+  line-height:1.9;
+
+  color:#59645b;
+}
+
+#apiKeyInput{
+  width:100%;
+
+  padding:14px;
+
+  border:1px solid #ccc;
+
+  border-radius:12px;
+
+  font-size:15px;
+
+  direction:ltr;
+
+  text-align:left;
+
+  margin:10px 0;
+}
+
+#keyStart{
+  width:100%;
+
+  background:#176b3a;
+
+  color:white;
+
+  margin:8px 0;
+}
+
+#keyError{
+  color:#b32121;
+
+  font-size:14px;
+
+  min-height:24px;
+}
+
+
+/* =========================
+   AI ERROR
+========================= */
+
+.ai-error{
+  color:#b32121 !important;
+}
+
+.ai-good{
+  color:#176b3a !important;
 }
 
 </style>
 
 </head>
 
+
 <body>
 
-<div class="wrap">
+
+<!-- =========================================================
+     API KEY SCREEN
+========================================================= -->
+
+<div id="keyScreen">
+
+  <div class="key-card">
+
+    <h2>
+      🤖 Groq AI شروع کریں
+    </h2>
+
+    <p>
+      ایپ استعمال کرنے سے پہلے اپنی
+      <b>Groq API Key</b> درج کریں۔
+    </p>
+
+    <p class="small">
+      API Key اس HTML کے code میں محفوظ نہیں کی جاتی۔
+      GitHub پر upload ہونے والے code میں
+      آپ کی Key شامل نہیں ہوگی۔
+    </p>
+
+    <input
+      id="apiKeyInput"
+      type="password"
+      autocomplete="off"
+      placeholder="gsk_........................">
+
+    <button id="keyStart">
+      🔐 API Key کے ساتھ ایپ شروع کریں
+    </button>
+
+    <div id="keyError"></div>
+
+    <div class="small">
+
+      اگر Key درست ہوگی تو اصل ایپ کھل جائے گی۔
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     MAIN APP
+========================================================= -->
+
+<div class="wrap" id="mainApp" style="display:none;">
+
 
 <h1>
   سورۃ البروج — حفظ سنانے والا
 </h1>
 
+
 <div class="sub">
 
-  مائیک دبائیں اور پڑھنا شروع کریں؛
+  مائیک دبائیں اور پڑھنا شروع کریں۔
+
   <br>
-  ایپ آپ کی آواز کو <b>Live</b> سن کر
-  فوراً قرآن کے الفاظ سے ملانے کی کوشش کرے گی۔
+
+  🟡 Live نظام فوراً سنائے گئے الفاظ پکڑے گا،
+  جبکہ 🤖 Groq AI پسِ منظر میں تلاوت کی
+  دوبارہ جانچ کرے گا۔
 
 </div>
 
 
-<!-- =====================================================
+
+<!-- =========================================================
      CONTROLS
-====================================================== -->
+========================================================= -->
 
 <div class="card controls">
 
+
   <button id="start">
-    🎙️ Live سننا شروع کریں
+    🎙️ Live + AI شروع کریں
   </button>
+
 
   <button id="micTest">
     🎤 مائیک چیک کریں
   </button>
 
+
   <button id="reset">
-    🔄 ری سیٹ کریں
+    🔄 ری سیٹ
   </button>
+
 
   <button id="stop">
     ⏹️ بند کریں
@@ -282,7 +608,7 @@ button:disabled{
     class="progress-text"
     id="progressText">
 
-    0 / 119 الفاظ
+    0 الفاظ
 
   </div>
 
@@ -298,11 +624,16 @@ button:disabled{
     </span>
 
     <span class="badge">
-      🔴 غلط
+      🔴 AI کی پکڑی ہوئی غلطی
     </span>
 
   </div>
 
+
+
+  <!-- =======================================================
+       LIVE TEXT
+  ======================================================== -->
 
   <div class="live-box">
 
@@ -317,6 +648,29 @@ button:disabled{
   </div>
 
 
+
+  <!-- =======================================================
+       AI TEXT
+  ======================================================== -->
+
+  <div class="ai-box">
+
+    <div class="ai-title">
+      🤖 Groq AI verification:
+    </div>
+
+    <div id="aiText">
+      AI ابھی شروع نہیں ہوا۔
+    </div>
+
+    <div id="aiStatus">
+      AI verification تیار ہے۔
+    </div>
+
+  </div>
+
+
+
   <div
     class="support-box"
     id="supportBox">
@@ -326,133 +680,114 @@ button:disabled{
 
     <br><br>
 
-    براہ کرم پہلے <b>Google Chrome</b> یا
-    <b>Microsoft Edge</b> میں کوشش کریں۔
+    Google Chrome یا Microsoft Edge استعمال کریں۔
 
   </div>
+
 
 </div>
 
 
-<!-- =====================================================
+
+<!-- =========================================================
      QURAN
-====================================================== -->
+========================================================= -->
 
 <div class="card">
 
-  <!-- بسم اللہ -->
-
-  <div class="bismillah">
-
-    <span
-      class="word"
-      data-idx="0">
-
-      بِسْمِ
-
-    </span>
-
-    <span
-      class="word"
-      data-idx="1">
-
-      اللَّهِ
-
-    </span>
-
-    <span
-      class="word"
-      data-idx="2">
-
-      الرَّحْمَٰنِ
-
-    </span>
-
-    <span
-      class="word"
-      data-idx="3">
-
-      الرَّحِيمِ
-
-    </span>
-
-  </div>
-
-
-  <!-- سورۃ -->
-
   <div
-    id="ayah"
+    id="quranText"
     class="ayah">
   </div>
 
 </div>
 
 
-<!-- =====================================================
+
+<!-- =========================================================
      NOTE
-====================================================== -->
+========================================================= -->
 
 <div class="card small">
 
-  <b>Live طریقۂ کار:</b>
-
-  ایپ اب 6 سیکنڈ کی recording بنا کر Groq کو
-  بھیجنے کا انتظار نہیں کرتی۔
-
-  براؤزر کی Live Speech Recognition
-  آپ کی آواز کا متن مسلسل فراہم کرتی ہے،
-  اور اسی دوران موجودہ قرآنی لفظ کو
-  match کیا جاتا ہے۔
+  <b>Hybrid طریقۂ کار:</b>
 
   <br><br>
 
-  <b>🟡 زرد:</b>
-  موجودہ لفظ۔
+  🟡 Browser Live Recognition فوراً
+  آپ کی آواز سنتا ہے۔
 
   <br>
 
-  <b>🟢 سبز:</b>
-  صحیح match ہو چکا ہے۔
+  🤖 Groq Whisper تقریباً ہر
+  2.5 سیکنڈ کی recording کو
+  الگ سے check کرتا ہے۔
 
   <br>
 
-  <b>🔴 سرخ:</b>
-  mismatch یا چھوڑا ہوا لفظ۔
+  🔴 AI کا نتیجہ قرآن کے اصل متن سے
+  compare کیا جاتا ہے۔
 
   <br><br>
 
-  <b>نوٹ:</b>
-  اگر آپ کسی لفظ کو لمبا کھینچ کر پڑھیں،
-  مثلاً لفظ کی آواز کو زیادہ دیر جاری رکھیں،
-  تو Live recognition کے بار بار آنے والے
-  ایک ہی لفظ کو دوبارہ count نہیں کیا جائے گا۔
+  اس لیے Live نظام کی رفتار اور
+  AI کی verification دونوں ساتھ چلتے ہیں۔
 
 </div>
 
+
 </div>
+
 
 
 <script>
 
+
 /* ============================================================
-   بسم اللہ
+   GROQ
+============================================================ */
+
+/*
+   API KEY یہاں نہیں ہے۔
+
+   User اسے شروع میں خود داخل کرے گا۔
+*/
+
+const GROQ_URL =
+"https://api.groq.com/openai/v1/audio/transcriptions";
+
+const GROQ_MODEL =
+"whisper-large-v3-turbo";
+
+
+/*
+   AI ہر 2.5 سیکنڈ بعد ایک
+   مکمل چھوٹا audio chunk بنائے گا۔
+
+   پرانے 6 سیکنڈ والے طریقے کی جگہ
+   یہی چھوٹا chunk استعمال ہوگا۔
+*/
+
+const AI_CHUNK_MS =
+2500;
+
+
+
+/* ============================================================
+   QURAN
 ============================================================ */
 
 const BISMILLAH =
 "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
 
 
-/* ============================================================
-   سورۃ البروج
-============================================================ */
-
 const SURAH_TEXT =
 "وَالسَّمَاءِ ذَاتِ الْبُرُوجِ وَالْيَوْمِ الْمَوْعُودِ وَشَاهِدٍ وَمَشْهُودٍ قُتِلَ أَصْحَابُ الْأُخْدُودِ النَّارِ ذَاتِ الْوَقُودِ إِذْ هُمْ عَلَيْهَا قُعُودٌ وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِالْمُؤْمِنِينَ شُهُودٌ وَمَا نَقَمُوا مِنْهُمْ إِلَّا أَنْ يُؤْمِنُوا بِاللَّهِ الْعَزِيزِ الْحَمِيدِ الَّذِي لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ إِنَّ الَّذِينَ فَتَنُوا الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ ثُمَّ لَمْ يَتُوبُوا فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ الْحَرِيقِ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ جَنَّاتٌ تَجْرِي مِنْ تَحْتِهَا الْأَنْهَارُ ذَٰلِكَ الْفَوْزُ الْكَبِيرُ إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ وَهُوَ الْغَفُورُ الْوَدُودُ ذُو الْعَرْشِ الْمَجِيدُ فَعَّالٌ لِمَا يُرِيدُ هَلْ أَتَاكَ حَدِيثُ الْجُنُودِ فِرْعَوْنَ وَثَمُودَ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّهُ مِنْ وَرَائِهِمْ مُحِيطٌ بَلْ هُوَ قُرْآنٌ مَجِيدٌ فِي لَوْحٍ مَحْفُوظٍ";
 
 
+
 /* ============================================================
-   SPEECH RECOGNITION
+   SPEECH
 ============================================================ */
 
 const SpeechRecognition =
@@ -460,128 +795,213 @@ const SpeechRecognition =
   window.webkitSpeechRecognition;
 
 
+
 /* ============================================================
-   GLOBAL VARIABLES
+   GLOBAL
 ============================================================ */
+
+let GROQ_API_KEY = "";
 
 let recognition = null;
 
 let listening = false;
 
-
-/*
-   مکمل target:
-
-   پہلے بسم اللہ کے 4 الفاظ
-   پھر سورۃ کے الفاظ
-*/
-
 let targetWords = [];
 
 let targetNormalized = [];
 
-
-/*
-   اگلا مطلوبہ لفظ
-*/
-
 let nextTargetIndex = 0;
-
-
-/*
-   SpeechRecognition result buffers
-*/
 
 let resultBuffers = {};
 
-
-/*
-   ہر result میں کتنے الفاظ پہلے process ہو چکے
-*/
-
 let interimConsumed = {};
 
-
-/*
-   Live transcript
-*/
+let recentMatchedWords = [];
 
 let currentLiveText = "";
 
 
 /*
-   کتنے آخری الفاظ پہلے ہی match ہو چکے ہیں۔
-
-   لمبے کھینچے ہوئے لفظ کے duplicate
-   روکنے کے لیے اہم ہے۔
+   AI recorder
 */
 
-let recentMatchedWords = [];
+let microphoneStream = null;
+
+let mediaRecorder = null;
+
+let aiTimer = null;
+
+let aiRecording = false;
+
+let aiBusy = false;
 
 
 /*
-   آخری match کا target index
+   AI کا الگ cursor
 */
 
-let lastMatchedTargetIndex = -1;
+let aiTargetIndex = 0;
+
 
 
 /*
-   matching window
+   ایک chunk کے AI result میں
+   جو target words verify ہو چکے ہیں
 */
+
+let aiVerifiedUntil = 0;
+
+
+
+/* ============================================================
+   SETTINGS
+============================================================ */
 
 const SEARCH_WINDOW = 7;
 
-
-/*
-   صحیح match threshold
-*/
-
 const GOOD_MATCH = 0.72;
 
-
-/*
-   بہت چھوٹے الفاظ میں fuzzy matching نہ کریں۔
-*/
+const AI_GOOD_MATCH = 0.72;
 
 const MIN_FUZZY_LENGTH = 3;
 
+const DUPLICATE_MEMORY = 4;
+
+
+
+/* ============================================================
+   KEY SCREEN
+============================================================ */
+
+const keyScreen =
+document.getElementById("keyScreen");
+
+const mainApp =
+document.getElementById("mainApp");
+
+const apiKeyInput =
+document.getElementById("apiKeyInput");
+
+const keyStart =
+document.getElementById("keyStart");
+
+const keyError =
+document.getElementById("keyError");
+
 
 /*
-   Duplicate روکنے کے لیے
-   حالیہ چند الفاظ۔
+   API key صرف memory میں رہے گی۔
+
+   localStorage میں نہیں۔
+
+   page بند ہونے کے بعد دوبارہ مانگی جائے گی۔
 */
 
-const DUPLICATE_MEMORY = 4;
+keyStart.onclick =
+() => {
+
+  const key =
+    apiKeyInput.value.trim();
+
+
+  if(!key){
+
+    keyError.textContent =
+      "❌ پہلے Groq API Key درج کریں۔";
+
+    return;
+
+  }
+
+
+  if(
+    !key.startsWith("gsk_")
+  ){
+
+    keyError.textContent =
+      "❌ Groq API Key کا format درست نہیں لگ رہا۔";
+
+    return;
+
+  }
+
+
+  GROQ_API_KEY =
+    key;
+
+
+  keyError.textContent =
+    "";
+
+
+  keyScreen.style.display =
+    "none";
+
+
+  mainApp.style.display =
+    "block";
+
+
+  statusEl.textContent =
+    "✅ API Key مل گئی — ایپ تیار ہے۔";
+
+  statusEl.style.color =
+    "#176b3a";
+
+};
+
+
+apiKeyInput.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.key === "Enter"
+    ){
+
+      keyStart.click();
+
+    }
+
+  }
+);
+
 
 
 /* ============================================================
    DOM
 ============================================================ */
 
-const ayahEl =
-  document.getElementById("ayah");
+const quranTextEl =
+document.getElementById("quranText");
 
 const statusEl =
-  document.getElementById("status");
+document.getElementById("status");
 
 const progressBar =
-  document.getElementById("progressBar");
+document.getElementById("progressBar");
 
 const progressText =
-  document.getElementById("progressText");
+document.getElementById("progressText");
 
 const liveTextEl =
-  document.getElementById("liveText");
+document.getElementById("liveText");
+
+const aiTextEl =
+document.getElementById("aiText");
+
+const aiStatusEl =
+document.getElementById("aiStatus");
 
 const supportBox =
-  document.getElementById("supportBox");
+document.getElementById("supportBox");
 
 const startButton =
-  document.getElementById("start");
+document.getElementById("start");
 
 const stopButton =
-  document.getElementById("stop");
+document.getElementById("stop");
+
 
 
 /* ============================================================
@@ -594,18 +1014,10 @@ function normalize(text){
 
     .normalize("NFD")
 
-    /*
-      حرکات ختم
-    */
-
     .replace(
       /[\u064B-\u065F\u0670\u06D6-\u06ED]/g,
       ""
     )
-
-    /*
-      عربی حروف
-    */
 
     .replace(
       /[إأٱآ]/g,
@@ -632,36 +1044,20 @@ function normalize(text){
       "ی"
     )
 
-    /*
-      Tatweel
-    */
-
     .replace(
       /ـ/g,
       ""
     )
-
-    /*
-      قرآنی علامات
-    */
 
     .replace(
       /[ۖۗۚۛۜۙۘ۞]/g,
       ""
     )
 
-    /*
-      punctuation
-    */
-
     .replace(
       /[،؛,.!?؟]/g,
       " "
     )
-
-    /*
-      صرف عربی حروف
-    */
 
     .replace(
       /[^\u0600-\u06FF\s]/g,
@@ -678,6 +1074,7 @@ function normalize(text){
 }
 
 
+
 /* ============================================================
    WORDS
 ============================================================ */
@@ -687,9 +1084,13 @@ function words(text){
   const n =
     normalize(text);
 
+
   if(!n){
+
     return [];
+
   }
+
 
   return n
     .split(/\s+/)
@@ -698,19 +1099,31 @@ function words(text){
 }
 
 
+
 /* ============================================================
    SIMILARITY
 ============================================================ */
 
 function similarity(a,b){
 
-  if(a === b){
+  if(
+    a === b
+  ){
+
     return 1;
+
   }
 
-  if(!a || !b){
+
+  if(
+    !a ||
+    !b
+  ){
+
     return 0;
+
   }
+
 
   if(
     a.length < MIN_FUZZY_LENGTH ||
@@ -727,6 +1140,7 @@ function similarity(a,b){
       ? a
       : b;
 
+
   const shorter =
     a.length > b.length
       ? b
@@ -742,7 +1156,8 @@ function similarity(a,b){
     i++
   ){
 
-    matrix[i] = [i];
+    matrix[i] =
+      [i];
 
   }
 
@@ -753,7 +1168,8 @@ function similarity(a,b){
     j++
   ){
 
-    matrix[0][j] = j;
+    matrix[0][j] =
+      j;
 
   }
 
@@ -771,7 +1187,8 @@ function similarity(a,b){
     ){
 
       const cost =
-        shorter[i-1] === longer[j-1]
+        shorter[i-1] ===
+        longer[j-1]
           ? 0
           : 1;
 
@@ -802,9 +1219,11 @@ function similarity(a,b){
 
   return (
     longer.length - distance
-  ) / longer.length;
+  ) /
+  longer.length;
 
 }
+
 
 
 /* ============================================================
@@ -825,16 +1244,6 @@ function wordMatch(
   }
 
 
-  if(
-    target.length < MIN_FUZZY_LENGTH ||
-    spoken.length < MIN_FUZZY_LENGTH
-  ){
-
-    return 0;
-
-  }
-
-
   return similarity(
     target,
     spoken
@@ -843,15 +1252,12 @@ function wordMatch(
 }
 
 
+
 /* ============================================================
    BUILD TARGET
 ============================================================ */
 
 function buildTarget(){
-
-  /*
-    بسم اللہ + سورۃ
-  */
 
   const bismillahWords =
     BISMILLAH
@@ -865,8 +1271,11 @@ function buildTarget(){
 
 
   targetWords = [
+
     ...bismillahWords,
+
     ...surahWords
+
   ];
 
 
@@ -876,53 +1285,72 @@ function buildTarget(){
         normalize(word)
     );
 
-
 }
 
 
+
 /* ============================================================
-   RENDER SURAH
+   RENDER
 ============================================================ */
 
 function renderSurah(){
 
-  /*
-    صرف سورۃ کے الفاظ یہاں render ہوں گے۔
-
-    بسم اللہ پہلے سے HTML میں موجود ہے۔
-  */
-
-  const surahStartIndex =
-    4;
+  let html = "";
 
 
-  const surahWords =
-    targetWords.slice(
-      surahStartIndex
-    );
+  html += `
+    <div class="bismillah">
+  `;
 
 
-  ayahEl.innerHTML =
-    surahWords
-      .map(
-        (word,index) => {
+  for(
+    let i=0;
+    i<4;
+    i++
+  ){
 
-          const actualIndex =
-            index +
-            surahStartIndex;
+    html += `
+      <span
+        class="word"
+        data-idx="${i}">
+        ${targetWords[i]}
+      </span>
+    `;
+
+  }
 
 
-          return `
-            <span
-              class="word"
-              data-idx="${actualIndex}">
-              ${word}
-            </span>
-          `;
+  html += `
+    </div>
 
-        }
-      )
-      .join(" ");
+    <div class="surah-body">
+  `;
+
+
+  for(
+    let i=4;
+    i<targetWords.length;
+    i++
+  ){
+
+    html += `
+      <span
+        class="word"
+        data-idx="${i}">
+        ${targetWords[i]}
+      </span>
+    `;
+
+  }
+
+
+  html += `
+    </div>
+  `;
+
+
+  quranTextEl.innerHTML =
+    html;
 
 
   updateProgress();
@@ -930,8 +1358,9 @@ function renderSurah(){
 }
 
 
+
 /* ============================================================
-   GET ALL WORD SPANS
+   SPANS
 ============================================================ */
 
 function getAllWordSpans(){
@@ -941,6 +1370,7 @@ function getAllWordSpans(){
   );
 
 }
+
 
 
 /* ============================================================
@@ -979,25 +1409,23 @@ function updateProgress(){
 }
 
 
+
 /* ============================================================
    CURRENT WORD
 ============================================================ */
 
 function showCurrentWord(){
 
-  const spans =
-    getAllWordSpans();
+  getAllWordSpans()
+    .forEach(
+      span => {
 
+        span.classList.remove(
+          "current"
+        );
 
-  spans.forEach(
-    span => {
-
-      span.classList.remove(
-        "current"
-      );
-
-    }
-  );
+      }
+    );
 
 
   if(
@@ -1010,33 +1438,16 @@ function showCurrentWord(){
   }
 
 
-  /*
-    data-idx کے ذریعے اصل word تلاش کریں۔
-  */
-
-  let current = null;
-
-
-  spans.forEach(
-    span => {
-
-      if(
-        Number(
-          span.dataset.idx
-        ) ===
-        nextTargetIndex
-      ){
-
-        current = span;
-
-      }
-
-    }
-  );
+  const current =
+    document.querySelector(
+      `.word[data-idx="${nextTargetIndex}"]`
+    );
 
 
   if(!current){
+
     return;
+
   }
 
 
@@ -1057,8 +1468,9 @@ function showCurrentWord(){
 }
 
 
+
 /* ============================================================
-   DUPLICATE CHECK
+   DUPLICATE
 ============================================================ */
 
 function isRecentDuplicate(
@@ -1072,10 +1484,6 @@ function isRecentDuplicate(
 
 }
 
-
-/* ============================================================
-   ADD RECENT WORD
-============================================================ */
 
 function rememberMatchedWord(
   spokenWord
@@ -1098,24 +1506,28 @@ function rememberMatchedWord(
 }
 
 
+
 /* ============================================================
-   FIND BEST TARGET
+   FIND TARGET
 ============================================================ */
 
 function findBestTarget(
-  spokenWord
+  spokenWord,
+  startIndex,
+  windowSize = SEARCH_WINDOW
 ){
 
   const start =
-    nextTargetIndex;
+    Math.max(
+      0,
+      startIndex
+    );
 
 
   const end =
     Math.min(
       targetNormalized.length,
-
-      start +
-      SEARCH_WINDOW
+      start + windowSize
     );
 
 
@@ -1161,6 +1573,7 @@ function findBestTarget(
 }
 
 
+
 /* ============================================================
    MARK CORRECT
 ============================================================ */
@@ -1169,35 +1582,65 @@ function markCorrect(
   index
 ){
 
-  const spans =
-    getAllWordSpans();
+  const span =
+    document.querySelector(
+      `.word[data-idx="${index}"]`
+    );
 
 
-  spans.forEach(
-    span => {
+  if(!span){
 
-      if(
-        Number(
-          span.dataset.idx
-        ) === index
-      ){
+    return;
 
-        span.classList.remove(
-          "bad",
-          "current",
-          "skipped"
-        );
+  }
 
-        span.classList.add(
-          "ok"
-        );
 
-      }
+  span.classList.remove(
+    "bad",
+    "ai-bad"
+  );
 
-    }
+
+  span.classList.add(
+    "ok"
   );
 
 }
+
+
+
+/* ============================================================
+   MARK AI BAD
+============================================================ */
+
+function markAIBad(
+  index
+){
+
+  const span =
+    document.querySelector(
+      `.word[data-idx="${index}"]`
+    );
+
+
+  if(!span){
+
+    return;
+
+  }
+
+
+  span.classList.remove(
+    "ok"
+  );
+
+
+  span.classList.add(
+    "ai-bad"
+  );
+
+}
+
 
 
 /* ============================================================
@@ -1209,42 +1652,22 @@ function markSkipped(
   to
 ){
 
-  const spans =
-    getAllWordSpans();
+  for(
+    let i=from;
+    i<to;
+    i++
+  ){
 
+    markAIBad(i);
 
-  spans.forEach(
-    span => {
-
-      const index =
-        Number(
-          span.dataset.idx
-        );
-
-
-      if(
-        index >= from &&
-        index < to
-      ){
-
-        span.classList.remove(
-          "current"
-        );
-
-        span.classList.add(
-          "bad"
-        );
-
-      }
-
-    }
-  );
+  }
 
 }
 
 
+
 /* ============================================================
-   MATCH ONE WORD
+   LIVE MATCH
 ============================================================ */
 
 function matchOneWord(
@@ -1252,21 +1675,12 @@ function matchOneWord(
   isFinal
 ){
 
-  if(
-    !spokenWord
-  ){
+  if(!spokenWord){
 
     return false;
 
   }
 
-
-  /*
-    اگر یہی لفظ ابھی ابھی match ہوا تھا
-    تو دوبارہ آگے نہیں بڑھائیں گے۔
-
-    یہی long-word duplicate کا اہم حل ہے۔
-  */
 
   if(
     isRecentDuplicate(
@@ -1291,7 +1705,9 @@ function matchOneWord(
 
   const result =
     findBestTarget(
-      spokenWord
+      spokenWord,
+      nextTargetIndex,
+      SEARCH_WINDOW
     );
 
 
@@ -1300,14 +1716,18 @@ function matchOneWord(
     result.score < GOOD_MATCH
   ){
 
+    /*
+      Live نے confidence کم دیا۔
+
+      فوراً سرخ نہیں کریں گے۔
+
+      AI بعد میں فیصلہ کرے گا۔
+    */
+
     return false;
 
   }
 
-
-  /*
-    اگر match موجودہ target سے آگے ملا
-  */
 
   if(
     result.index >
@@ -1315,50 +1735,27 @@ function matchOneWord(
   ){
 
     /*
-      صرف final recognition میں
-      skipped words کو سرخ کریں۔
+      Live میں skipped word کو فوراً
+      red نہیں کریں گے۔
+
+      AI verification کرے گا۔
     */
-
-    if(isFinal){
-
-      markSkipped(
-        nextTargetIndex,
-        result.index
-      );
-
-    }
 
   }
 
-
-  /*
-    صحیح لفظ
-  */
 
   markCorrect(
     result.index
   );
 
 
-  /*
-    اگلا لفظ
-  */
-
   nextTargetIndex =
     result.index + 1;
 
 
-  /*
-    duplicate memory
-  */
-
   rememberMatchedWord(
     spokenWord
   );
-
-
-  lastMatchedTargetIndex =
-    result.index;
 
 
   updateProgress();
@@ -1366,27 +1763,12 @@ function matchOneWord(
   showCurrentWord();
 
 
-  /*
-    مکمل
-  */
-
-  if(
-    nextTargetIndex >=
-    targetNormalized.length
-  ){
-
-    statusEl.textContent =
-      "🌟 ماشاءاللہ! سورۃ البروج مکمل ہو گئی۔";
-
-    statusEl.style.color =
-      "#176b3a";
+  statusEl.textContent =
+    "🎙️ Live: پڑھتے جائیں";
 
 
-    stopRecognition();
-
-    return true;
-
-  }
+  statusEl.style.color =
+    "#176b3a";
 
 
   return true;
@@ -1394,8 +1776,9 @@ function matchOneWord(
 }
 
 
+
 /* ============================================================
-   REMOVE TRANSCRIPT DUPLICATES
+   REMOVE DUPLICATES
 ============================================================ */
 
 function removeConsecutiveDuplicates(
@@ -1408,11 +1791,6 @@ function removeConsecutiveDuplicates(
   for(
     const word of arr
   ){
-
-    /*
-      ایک ہی لفظ مسلسل دوبارہ آیا ہو
-      تو صرف ایک رکھیں۔
-    */
 
     if(
       result.length > 0 &&
@@ -1438,8 +1816,9 @@ function removeConsecutiveDuplicates(
 }
 
 
+
 /* ============================================================
-   PROCESS NEW WORDS
+   LIVE WORD PROCESSING
 ============================================================ */
 
 function processNewWords(
@@ -1461,31 +1840,17 @@ function processNewWords(
   }
 
 
-  /*
-    مسلسل duplicate ختم
-  */
-
   currentWords =
     removeConsecutiveDuplicates(
       currentWords
     );
 
 
-  /*
-    اس result میں پہلے کتنے
-    words process ہو چکے ہیں۔
-  */
-
   const oldCount =
     interimConsumed[
       resultIndex
     ] || 0;
 
-
-  /*
-    اگر browser نے وہی transcript
-    دوبارہ بھیجا تو دوبارہ process نہ کریں۔
-  */
 
   if(
     currentWords.length <=
@@ -1507,39 +1872,13 @@ function processNewWords(
     const spokenWord of newWords
   ){
 
-    /*
-      ایک اہم مسئلہ:
-
-      اگر speech recognition لمبا لفظ
-      بولنے کے دوران بار بار وہی لفظ
-      بھیجے تو duplicate memory
-      اسے دوبارہ count نہیں ہونے دے گی۔
-    */
-
-    const matched =
-      matchOneWord(
-        spokenWord,
-        isFinal
-      );
-
-
-    if(matched){
-
-      statusEl.textContent =
-        "🎙️ درست — آگے پڑھتے جائیں";
-
-      statusEl.style.color =
-        "#176b3a";
-
-    }
+    matchOneWord(
+      spokenWord,
+      isFinal
+    );
 
   }
 
-
-  /*
-    نئے transcript کے مطابق
-    processed count محفوظ کریں۔
-  */
 
   interimConsumed[
     resultIndex
@@ -1549,8 +1888,9 @@ function processNewWords(
 }
 
 
+
 /* ============================================================
-   REBUILD LIVE TEXT
+   LIVE TEXT
 ============================================================ */
 
 function rebuildLiveText(){
@@ -1560,18 +1900,18 @@ function rebuildLiveText(){
       resultBuffers
     )
 
-      .sort(
-        (a,b) =>
-          Number(a) -
-          Number(b)
-      )
+    .sort(
+      (a,b) =>
+        Number(a) -
+        Number(b)
+    )
 
-      .map(
-        key =>
-          resultBuffers[key]
-      )
+    .map(
+      key =>
+        resultBuffers[key]
+    )
 
-      .filter(Boolean);
+    .filter(Boolean);
 
 
   currentLiveText =
@@ -1583,6 +1923,7 @@ function rebuildLiveText(){
     "سن رہا ہوں…";
 
 }
+
 
 
 /* ============================================================
@@ -1626,14 +1967,6 @@ function handleSpeechResult(
     }
 
 
-    const isFinal =
-      result.isFinal;
-
-
-    /*
-      Live text buffer
-    */
-
     resultBuffers[i] =
       transcript;
 
@@ -1641,19 +1974,16 @@ function handleSpeechResult(
     rebuildLiveText();
 
 
-    /*
-      نئے الفاظ match
-    */
-
     processNewWords(
       i,
       transcript,
-      isFinal
+      result.isFinal
     );
 
   }
 
 }
+
 
 
 /* ============================================================
@@ -1665,71 +1995,63 @@ function handleSpeechError(
 ){
 
   console.log(
-    "SpeechRecognition error:",
+    "Speech error:",
     event.error
   );
 
 
-  switch(
-    event.error
+  if(
+    event.error ===
+    "not-allowed"
   ){
 
-    case "not-allowed":
+    statusEl.textContent =
+      "❌ مائیک کی اجازت نہیں ملی۔";
 
-      statusEl.textContent =
-        "❌ مائیک کی اجازت نہیں ملی۔";
+    statusEl.style.color =
+      "#b32121";
 
-      statusEl.style.color =
-        "#b32121";
+    listening =
+      false;
 
-      listening = false;
+    return;
 
-      break;
-
-
-    case "audio-capture":
-
-      statusEl.textContent =
-        "❌ مائیک دستیاب نہیں۔";
-
-      statusEl.style.color =
-        "#b32121";
-
-      break;
+  }
 
 
-    case "no-speech":
+  if(
+    event.error ===
+    "network"
+  ){
 
-      /*
-        اس پر کوئی error نہیں دکھائیں گے۔
-      */
+    statusEl.textContent =
+      "⚠️ Live Recognition کا network مسئلہ آیا۔";
 
-      break;
+    statusEl.style.color =
+      "#8a6d31";
 
+    return;
 
-    case "network":
-
-      statusEl.textContent =
-        "⚠️ Speech Recognition کے لیے network مسئلہ آیا۔";
-
-      statusEl.style.color =
-        "#8a6d31";
-
-      break;
+  }
 
 
-    default:
+  if(
+    event.error ===
+    "audio-capture"
+  ){
 
-      statusEl.textContent =
-        "⚠️ Speech Recognition: " +
-        event.error;
+    statusEl.textContent =
+      "❌ مائیک دستیاب نہیں۔";
 
-      statusEl.style.color =
-        "#8a6d31";
+    statusEl.style.color =
+      "#b32121";
+
+    return;
 
   }
 
 }
+
 
 
 /* ============================================================
@@ -1737,19 +2059,6 @@ function handleSpeechError(
 ============================================================ */
 
 function handleSpeechEnd(){
-
-  console.log(
-    "Speech recognition ended"
-  );
-
-
-  /*
-    Chrome کبھی کبھی recognition
-    خود بند کر دیتا ہے۔
-
-    اگر user نے Stop نہیں دبایا
-    تو دوبارہ شروع کریں۔
-  */
 
   if(
     listening
@@ -1767,7 +2076,7 @@ function handleSpeechEnd(){
         }
 
       },
-      300
+      250
     );
 
   }
@@ -1775,8 +2084,9 @@ function handleSpeechEnd(){
 }
 
 
+
 /* ============================================================
-   CREATE RECOGNITION
+   CREATE SPEECH
 ============================================================ */
 
 function createRecognition(){
@@ -1802,29 +2112,13 @@ function createRecognition(){
     new SpeechRecognition();
 
 
-  /*
-    continuous:
-
-    recognition مسلسل چلتی رہے۔
-  */
-
   r.continuous =
     true;
 
 
-  /*
-    interimResults:
-
-    final result کا انتظار نہ کرے۔
-  */
-
   r.interimResults =
     true;
 
-
-  /*
-    عربی
-  */
 
   r.lang =
     "ar-SA";
@@ -1851,8 +2145,9 @@ function createRecognition(){
 }
 
 
+
 /* ============================================================
-   START ENGINE
+   START SPEECH
 ============================================================ */
 
 function startRecognitionEngine(){
@@ -1876,18 +2171,11 @@ function startRecognitionEngine(){
 
     recognition.start();
 
-
-    statusEl.textContent =
-      "🎙️ Live سن رہا ہوں — پڑھنا شروع کریں";
-
-    statusEl.style.color =
-      "#176b3a";
-
-  }catch(error){
+  }catch(e){
 
     console.log(
-      "Recognition start:",
-      error.message
+      "Speech start:",
+      e.message
     );
 
   }
@@ -1895,19 +2183,778 @@ function startRecognitionEngine(){
 }
 
 
+
 /* ============================================================
-   START LISTENING
+   GET MIME TYPE
 ============================================================ */
 
-function startListening(){
+function getBestMimeType(){
 
-  if(!SpeechRecognition){
+  const types = [
+
+    "audio/webm;codecs=opus",
+
+    "audio/webm",
+
+    "audio/mp4",
+
+    "audio/ogg;codecs=opus"
+
+  ];
+
+
+  for(
+    const type of types
+  ){
+
+    if(
+      MediaRecorder.isTypeSupported(
+        type
+      )
+    ){
+
+      return type;
+
+    }
+
+  }
+
+
+  return "";
+
+}
+
+
+
+/* ============================================================
+   START AI RECORDER
+============================================================ */
+
+async function startAIRecorder(){
+
+  if(
+    !GROQ_API_KEY
+  ){
+
+    aiStatusEl.textContent =
+      "❌ Groq API Key موجود نہیں۔";
+
+    aiStatusEl.className =
+      "ai-status ai-error";
+
+    return false;
+
+  }
+
+
+  if(
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia
+  ){
+
+    aiStatusEl.textContent =
+      "❌ Browser microphone recording support نہیں کرتا۔";
+
+    aiStatusEl.className =
+      "ai-status ai-error";
+
+    return false;
+
+  }
+
+
+  if(
+    !window.MediaRecorder
+  ){
+
+    aiStatusEl.textContent =
+      "❌ Browser MediaRecorder support نہیں کرتا۔";
+
+    aiStatusEl.className =
+      "ai-status ai-error";
+
+    return false;
+
+  }
+
+
+  try{
+
+    microphoneStream =
+      await navigator.mediaDevices.getUserMedia({
+        audio:{
+          channelCount:1,
+          echoCancellation:true,
+          noiseSuppression:true,
+          autoGainControl:true
+        }
+      });
+
+  }catch(error){
+
+    console.log(
+      "AI microphone:",
+      error
+    );
+
+
+    aiStatusEl.textContent =
+      "❌ AI microphone permission نہیں ملی۔";
+
+    aiStatusEl.className =
+      "ai-status ai-error";
+
+    return false;
+
+  }
+
+
+  aiRecording =
+    true;
+
+
+  aiStatusEl.textContent =
+    "🤖 AI listening شروع ہو گئی۔";
+
+  aiStatusEl.className =
+    "ai-status";
+
+
+  recordAIChunk();
+
+
+  return true;
+
+}
+
+
+
+/* ============================================================
+   RECORD ONE COMPLETE CHUNK
+============================================================ */
+
+function recordAIChunk(){
+
+  if(
+    !aiRecording ||
+    !microphoneStream
+  ){
+
+    return;
+
+  }
+
+
+  const mimeType =
+    getBestMimeType();
+
+
+  let options = {};
+
+
+  if(mimeType){
+
+    options.mimeType =
+      mimeType;
+
+  }
+
+
+  try{
+
+    mediaRecorder =
+      new MediaRecorder(
+        microphoneStream,
+        options
+      );
+
+  }catch(error){
+
+    console.log(
+      "MediaRecorder error:",
+      error
+    );
+
+    aiStatusEl.textContent =
+      "❌ Audio recorder شروع نہیں ہو سکا۔";
+
+    return;
+
+  }
+
+
+  const chunks = [];
+
+
+  mediaRecorder.ondataavailable =
+    event => {
+
+      if(
+        event.data &&
+        event.data.size > 0
+      ){
+
+        chunks.push(
+          event.data
+        );
+
+      }
+
+    };
+
+
+  mediaRecorder.onstop =
+    async () => {
+
+      if(
+        chunks.length === 0
+      ){
+
+        if(aiRecording){
+
+          recordAIChunk();
+
+        }
+
+        return;
+
+      }
+
+
+      const blob =
+        new Blob(
+          chunks,
+          {
+            type:
+              mediaRecorder.mimeType ||
+              mimeType ||
+              "audio/webm"
+          }
+        );
+
+
+      /*
+        اگلا chunk فوراً شروع کریں۔
+
+        AI request اس کے ساتھ ساتھ
+        background میں چلے گی۔
+      */
+
+      if(aiRecording){
+
+        recordAIChunk();
+
+      }
+
+
+      /*
+        AI پہلے سے busy ہو تو
+        chunk ضائع نہیں کریں گے۔
+
+        ایک وقت میں صرف ایک AI request۔
+      */
+
+      if(!aiBusy){
+
+        sendChunkToGroq(
+          blob
+        );
+
+      }
+
+    };
+
+
+  try{
+
+    mediaRecorder.start();
+
+  }catch(error){
+
+    console.log(
+      "Recorder start:",
+      error
+    );
+
+    return;
+
+  }
+
+
+  setTimeout(
+    () => {
+
+      if(
+        mediaRecorder &&
+        mediaRecorder.state ===
+        "recording"
+      ){
+
+        try{
+
+          mediaRecorder.stop();
+
+        }catch(e){}
+
+      }
+
+    },
+    AI_CHUNK_MS
+  );
+
+}
+
+
+
+/* ============================================================
+   STOP AI RECORDER
+============================================================ */
+
+function stopAIRecorder(){
+
+  aiRecording =
+    false;
+
+
+  if(aiTimer){
+
+    clearTimeout(
+      aiTimer
+    );
+
+    aiTimer =
+      null;
+
+  }
+
+
+  if(
+    mediaRecorder &&
+    mediaRecorder.state ===
+    "recording"
+  ){
+
+    try{
+
+      mediaRecorder.stop();
+
+    }catch(e){}
+
+  }
+
+
+  mediaRecorder =
+    null;
+
+
+  if(microphoneStream){
+
+    microphoneStream
+      .getTracks()
+      .forEach(
+        track =>
+          track.stop()
+      );
+
+  }
+
+
+  microphoneStream =
+    null;
+
+}
+
+
+
+/* ============================================================
+   SEND AUDIO TO GROQ
+============================================================ */
+
+async function sendChunkToGroq(
+  blob
+){
+
+  if(
+    !GROQ_API_KEY
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    aiBusy
+  ){
+
+    return;
+
+  }
+
+
+  aiBusy =
+    true;
+
+
+  aiStatusEl.textContent =
+    "🤖 AI تلاوت verify کر رہا ہے…";
+
+  aiStatusEl.className =
+    "ai-status";
+
+
+  try{
+
+    const formData =
+      new FormData();
+
+
+    let extension =
+      "webm";
+
+
+    if(
+      blob.type.includes("mp4")
+    ){
+
+      extension =
+        "mp4";
+
+    }else if(
+      blob.type.includes("ogg")
+    ){
+
+      extension =
+        "ogg";
+
+    }
+
+
+    formData.append(
+      "file",
+      blob,
+      "recitation." + extension
+    );
+
+
+    formData.append(
+      "model",
+      GROQ_MODEL
+    );
+
+
+    formData.append(
+      "language",
+      "ar"
+    );
+
+
+    formData.append(
+      "response_format",
+      "json"
+    );
+
+
+    const response =
+      await fetch(
+        GROQ_URL,
+        {
+          method:"POST",
+
+          headers:{
+            "Authorization":
+              "Bearer " +
+              GROQ_API_KEY
+          },
+
+          body:formData
+        }
+      );
+
+
+    if(
+      !response.ok
+    ){
+
+      const errorText =
+        await response.text();
+
+
+      throw new Error(
+        "Groq HTTP " +
+        response.status +
+        ": " +
+        errorText
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    const transcript =
+      (
+        data.text ||
+        ""
+      ).trim();
+
+
+    if(
+      transcript
+    ){
+
+      aiTextEl.textContent =
+        transcript;
+
+
+      verifyAITranscript(
+        transcript
+      );
+
+    }
+
+
+  }catch(error){
+
+    console.log(
+      "Groq error:",
+      error
+    );
+
+
+    aiStatusEl.textContent =
+      "⚠️ AI verification میں مسئلہ آیا۔ Live نظام جاری ہے۔";
+
+    aiStatusEl.className =
+      "ai-status ai-error";
+
+
+  }finally{
+
+    aiBusy =
+      false;
+
+  }
+
+}
+
+
+
+/* ============================================================
+   AI TRANSCRIPT VERIFICATION
+============================================================ */
+
+function verifyAITranscript(
+  transcript
+){
+
+  const spoken =
+    removeConsecutiveDuplicates(
+      words(transcript)
+    );
+
+
+  if(
+    spoken.length === 0
+  ){
+
+    return;
+
+  }
+
+
+  /*
+    AI result کو target کے موجودہ AI cursor
+    سے compare کریں۔
+  */
+
+  let cursor =
+    aiTargetIndex;
+
+
+  let matchedAnything =
+    false;
+
+
+  for(
+    const spokenWord of spoken
+  ){
+
+    if(
+      cursor >=
+      targetNormalized.length
+    ){
+
+      break;
+
+    }
+
+
+    const result =
+      findBestTarget(
+        spokenWord,
+        cursor,
+        5
+      );
+
+
+    /*
+      واضح match
+    */
+
+    if(
+      result.index !== -1 &&
+      result.score >=
+      AI_GOOD_MATCH
+    ){
+
+      /*
+        اگر درمیان میں قرآن کا کوئی
+        target word چھوڑا گیا ہے،
+        اسے AI غلطی کے طور پر mark کریں۔
+      */
+
+      if(
+        result.index >
+        cursor
+      ){
+
+        markSkipped(
+          cursor,
+          result.index
+        );
+
+      }
+
+
+      /*
+        صحیح AI match
+      */
+
+      markCorrect(
+        result.index
+      );
+
+
+      cursor =
+        result.index + 1;
+
+
+      matchedAnything =
+        true;
+
+
+      continue;
+
+    }
+
+
+    /*
+      AI کا spoken word موجودہ target
+      سے match نہیں ہوا۔
+
+      صرف اسی صورت میں موجودہ target
+      کو غلطی کہیں گے جب spoken word
+      واقعی واضح طور پر مختلف ہو۔
+    */
+
+    if(
+      targetNormalized[cursor]
+    ){
+
+      markAIBad(
+        cursor
+      );
+
+
+      aiStatusEl.textContent =
+        "🔴 AI نے ممکنہ غلطی پکڑی: " +
+        targetWords[cursor];
+
+      aiStatusEl.className =
+        "ai-status ai-error";
+
+
+      cursor++;
+
+    }
+
+  }
+
+
+  /*
+    AI cursor آگے بڑھائیں
+  */
+
+  if(
+    cursor >
+    aiTargetIndex
+  ){
+
+    aiTargetIndex =
+      cursor;
+
+  }
+
+
+  aiVerifiedUntil =
+    Math.max(
+      aiVerifiedUntil,
+      cursor
+    );
+
+
+  if(
+    matchedAnything &&
+    !aiStatusEl.classList.contains(
+      "ai-error"
+    )
+  ){
+
+    aiStatusEl.textContent =
+      "🟢 AI verification: تلاوت match ہو رہی ہے۔";
+
+    aiStatusEl.className =
+      "ai-status ai-good";
+
+  }
+
+}
+
+
+
+/* ============================================================
+   START EVERYTHING
+============================================================ */
+
+async function startListening(){
+
+  if(
+    !GROQ_API_KEY
+  ){
+
+    keyScreen.style.display =
+      "flex";
+
+    mainApp.style.display =
+      "none";
+
+    return;
+
+  }
+
+
+  if(
+    !SpeechRecognition
+  ){
 
     supportBox.style.display =
       "block";
 
     statusEl.textContent =
-      "❌ اس browser میں Live Speech Recognition موجود نہیں۔";
+      "❌ اس browser میں Live Speech Recognition دستیاب نہیں۔";
 
     statusEl.style.color =
       "#b32121";
@@ -1916,10 +2963,6 @@ function startListening(){
 
   }
 
-
-  /*
-    Reset
-  */
 
   resetMatching(
     false
@@ -1930,74 +2973,53 @@ function startListening(){
     true;
 
 
+  statusEl.textContent =
+    "🎙️ Live + AI شروع ہو رہا ہے…";
+
+  statusEl.style.color =
+    "#176b3a";
+
+
   /*
-    نئی recognition
+    Live Speech
   */
 
   recognition =
     createRecognition();
 
 
-  if(!recognition){
+  if(
+    recognition
+  ){
 
-    listening =
-      false;
-
-    return;
-
-  }
-
-
-  startRecognitionEngine();
-
-}
-
-
-/* ============================================================
-   STOP
-============================================================ */
-
-function stopRecognition(){
-
-  listening =
-    false;
-
-
-  if(recognition){
-
-    try{
-
-      recognition.stop();
-
-    }catch(e){
-
-      console.log(e);
-
-    }
+    startRecognitionEngine();
 
   }
+
+
+  /*
+    AI microphone
+
+    Live Speech اور MediaRecorder
+    ایک ہی وقت میں microphone استعمال
+    کر سکتے ہیں۔
+  */
+
+  await startAIRecorder();
 
 
   statusEl.textContent =
-    "⏹️ سننا بند ہو گیا";
-
-  statusEl.style.color =
-    "#8a6d31";
+    "🎙️ Live سن رہا ہوں + 🤖 AI چیک کر رہا ہے";
 
 }
 
 
+
 /* ============================================================
-   RESET
+   STOP SPEECH
 ============================================================ */
 
-function resetMatching(
-  showStatus = true
-){
-
-  /*
-    recognition بند
-  */
+function stopRecognition(){
 
   listening =
     false;
@@ -2014,53 +3036,112 @@ function resetMatching(
   }
 
 
+  stopAIRecorder();
+
+
+  statusEl.textContent =
+    "⏹️ Live + AI بند ہو گیا";
+
+  statusEl.style.color =
+    "#8a6d31";
+
+
+  aiStatusEl.textContent =
+    "AI verification بند ہے۔";
+
+  aiStatusEl.className =
+    "ai-status";
+
+}
+
+
+
+/* ============================================================
+   RESET
+============================================================ */
+
+function resetMatching(
+  showStatus = true
+){
+
+  /*
+    پہلے stop
+  */
+
+  if(recognition){
+
+    try{
+
+      recognition.stop();
+
+    }catch(e){}
+
+  }
+
+
+  stopAIRecorder();
+
+
+  listening =
+    false;
+
+
   nextTargetIndex =
+    0;
+
+
+  aiTargetIndex =
+    0;
+
+
+  aiVerifiedUntil =
     0;
 
 
   resultBuffers =
     {};
 
+
   interimConsumed =
     {};
-
-
-  currentLiveText =
-    "";
 
 
   recentMatchedWords =
     [];
 
 
-  lastMatchedTargetIndex =
-    -1;
+  currentLiveText =
+    "";
 
 
-  /*
-    تمام colors صاف
-  */
+  getAllWordSpans()
+    .forEach(
+      span => {
 
-  const spans =
-    getAllWordSpans();
+        span.classList.remove(
+          "ok",
+          "bad",
+          "current",
+          "ai-bad"
+        );
 
-
-  spans.forEach(
-    span => {
-
-      span.classList.remove(
-        "ok",
-        "bad",
-        "current",
-        "skipped"
-      );
-
-    }
-  );
+      }
+    );
 
 
   liveTextEl.textContent =
     "ابھی مائیک شروع نہیں ہوا۔";
+
+
+  aiTextEl.textContent =
+    "AI ابھی شروع نہیں ہوا۔";
+
+
+  aiStatusEl.textContent =
+    "AI verification تیار ہے۔";
+
+  aiStatusEl.className =
+    "ai-status";
 
 
   updateProgress();
@@ -2079,6 +3160,7 @@ function resetMatching(
   }
 
 }
+
 
 
 /* ============================================================
@@ -2108,7 +3190,7 @@ async () => {
 
 
     statusEl.textContent =
-      "✅ مائیک ٹھیک ہے اور اجازت مل گئی۔";
+      "✅ مائیک ٹھیک ہے۔";
 
     statusEl.style.color =
       "#176b3a";
@@ -2125,6 +3207,7 @@ async () => {
   }
 
 };
+
 
 
 /* ============================================================
@@ -2152,9 +3235,103 @@ document.getElementById(
 ).onclick =
 () => {
 
-  resetMatching(true);
+  resetMatching(
+    true
+  );
 
 };
+
+
+
+/* ============================================================
+   CREATE RECOGNITION
+============================================================ */
+
+function createRecognition(){
+
+  if(!SpeechRecognition){
+
+    supportBox.style.display =
+      "block";
+
+    startButton.disabled =
+      true;
+
+    return null;
+
+  }
+
+
+  supportBox.style.display =
+    "none";
+
+
+  const r =
+    new SpeechRecognition();
+
+
+  r.continuous =
+    true;
+
+
+  r.interimResults =
+    true;
+
+
+  r.lang =
+    "ar-SA";
+
+
+  r.maxAlternatives =
+    1;
+
+
+  r.onresult =
+    handleSpeechResult;
+
+
+  r.onerror =
+    handleSpeechError;
+
+
+  r.onend =
+    handleSpeechEnd;
+
+
+  return r;
+
+}
+
+
+
+/* ============================================================
+   START RECOGNITION ENGINE
+============================================================ */
+
+function startRecognitionEngine(){
+
+  if(!recognition){
+
+    return;
+
+  }
+
+
+  try{
+
+    recognition.start();
+
+  }catch(error){
+
+    console.log(
+      "Recognition start:",
+      error.message
+    );
+
+  }
+
+}
+
 
 
 /* ============================================================
@@ -2168,41 +3345,20 @@ renderSurah();
 showCurrentWord();
 
 
-/*
-  Browser support
-*/
-
 if(!SpeechRecognition){
 
   supportBox.style.display =
     "block";
 
-
-  statusEl.textContent =
-    "⚠️ اس browser میں Live Speech Recognition دستیاب نہیں۔";
-
-
-  statusEl.style.color =
-    "#8a6d31";
-
 }
 
 
-/*
-  Debug
-*/
-
 console.log(
-  "================================"
+  "===================================="
 );
 
 console.log(
-  "Live Quran Matching"
-);
-
-console.log(
-  "Speech Recognition:",
-  !!SpeechRecognition
+  "Quran Hybrid Live + Groq AI"
 );
 
 console.log(
@@ -2211,15 +3367,16 @@ console.log(
 );
 
 console.log(
-  "Bismillah included:",
-  true
+  "Bismillah:",
+  targetWords.slice(0,4)
 );
 
 console.log(
-  "================================"
+  "===================================="
 );
 
 </script>
 
 </body>
+
 </html>
