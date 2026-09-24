@@ -23,7 +23,6 @@
   .small{font-size:13px;color:#6b746c;line-height:1.7}
   .controls{text-align:center}
 
-  /* ✅ API Key Box */
   .key-overlay{
     position:fixed;top:0;left:0;width:100%;height:100%;
     background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;
@@ -49,11 +48,10 @@
 </head>
 <body>
 
-<!-- ✅ API Key لینے والا باکس -->
 <div class="key-overlay" id="keyOverlay">
   <div class="key-box">
     <h2>🔑 Groq API Key درج کریں</h2>
-    <p>ایپ استعمال کرنے کے لیے اپنی Groq API Key درج کریں۔ یہ Key آپ کے براؤزر میں محفوظ رہے گی اور کہیں نہیں بھیجی جائے گی۔</p>
+    <p>ایپ استعمال کرنے کے لیے اپنی Groq API Key درج کریں۔</p>
     <input type="password" id="keyInput" placeholder="gsk_..." autocomplete="off">
     <button id="saveKey">✅ محفوظ کریں اور شروع کریں</button>
     <div class="hint">
@@ -80,13 +78,13 @@
   </div>
 
   <div class="card small">
-    <b>نوٹ:</b> یہ ایپ Groq Whisper API استعمال کرتی ہے، جو قرآن کے لیے براؤزر سے زیادہ درست ہے۔ آپ کی API Key صرف آپ کے براؤزر میں محفوظ رہتی ہے۔
+    <b>نوٹ:</b> یہ ایپ Groq Whisper API استعمال کرتی ہے۔ آواز صرف اسی صورت بھیجی جائے گی جب واقعی کوئی آواز ہو۔
   </div>
 </div>
 
 <script>
 // ============================================================
-// API Key کو localStorage سے لیں گے (GitHub پر ظاہر نہیں ہوگی)
+// API Key کو localStorage سے لیں گے
 // ============================================================
 let GROQ_API_KEY = localStorage.getItem('groq_api_key') || '';
 
@@ -95,11 +93,14 @@ const fullSurah = "وَالسَّمَاءِ ذَاتِ الْبُرُوجِ وَ
 let targetWords = [];
 let targetNormalized = [];
 let listening = false;
-let finalText = "";
+let finalText = "";     // Groq سے موصول ہونے والا ٹیکسٹ
 let mediaRecorder = null;
 let audioChunks = [];
 let recordingTimer = null;
 let audioStream = null;
+let audioContext = null;
+let analyser = null;
+let silenceCheckInterval = null;
 
 const ayahEl = document.getElementById("ayah");
 const statusEl = document.getElementById("status");
@@ -108,7 +109,6 @@ const statusEl = document.getElementById("status");
 const keyOverlay = document.getElementById("keyOverlay");
 const keyInput = document.getElementById("keyInput");
 
-// اگر Key پہلے سے محفوظ ہے تو باکس چھپا دیں
 if(GROQ_API_KEY && GROQ_API_KEY.startsWith('gsk_')){
   keyOverlay.style.display = 'none';
 }
@@ -176,7 +176,7 @@ function similarity(a, b){
   return (longer.length - distance) / longer.length;
 }
 function fuzzyMatch(target, got){
-  return similarity(target, got) >= 0.7;
+  return similarity(target, got) >= 0.6; // 60% مماثلت (کم کیا تاکہ مد اور لہجہ برداشت ہو)
 }
 
 // ---------- قرآن رینڈر ----------
@@ -198,11 +198,12 @@ function resetAll(){
   statusEl.style.color = "#8a6d31";
 }
 
-// ---------- ہائی لائٹ ----------
+// ---------- ✅ صرف نئے ٹیکسٹ کی جانچ (پرانا نہیں جوڑتے) ----------
 function highlightWords(spokenText){
   const got = removeRepeatedWords(words(spokenText));
   const spans = ayahEl.querySelectorAll(".word");
 
+  // ہر بار صاف کریں
   spans.forEach(s => s.classList.remove("ok","bad","current"));
 
   let errors = 0;
@@ -240,12 +241,15 @@ function highlightWords(spokenText){
   }
 }
 
-// ---------- Groq API ----------
+// ---------- ✅ Groq API (خالی/بے معنی ٹیکسٹ فلٹر کے ساتھ) ----------
 async function sendToGroq(audioBlob){
   if(!GROQ_API_KEY || !GROQ_API_KEY.startsWith('gsk_')){
-    statusEl.textContent = "❌ پہلے API Key درج کریں";
-    statusEl.style.color = "#b32121";
     keyOverlay.style.display = 'flex';
+    return;
+  }
+
+  // آڈیو بہت چھوٹی ہو تو بھیجیں نہیں (شاید خاموشی ہو)
+  if(audioBlob.size < 5000){
     return;
   }
 
@@ -258,6 +262,7 @@ async function sendToGroq(audioBlob){
     formData.append('model', 'whisper-large-v3-turbo');
     formData.append('language', 'ar');
     formData.append('response_format', 'json');
+    formData.append('temperature', '0');
 
     const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
       method: 'POST',
@@ -266,20 +271,34 @@ async function sendToGroq(audioBlob){
     });
 
     if(!response.ok){
-      const errText = await response.text();
       statusEl.textContent = "❌ Groq ایرر: " + response.status;
       statusEl.style.color = "#b32121";
-      console.error("Groq error:", errText);
       return;
     }
 
     const data = await response.json();
-    console.log("📝 Groq ٹرانسکرپشن:", data.text);
+    let txt = (data.text || '').trim();
+    console.log("📝 Groq ٹرانسکرپشن:", txt);
 
-    if(data.text && data.text.trim()){
-      finalText += (finalText ? " " : "") + data.text.trim();
-      highlightWords(finalText);
+    // ✅ بے معنی/خالی ٹیکسٹ کو فلٹر کریں
+    if(!txt) return;
+    if(txt.length < 2) return;
+
+    // ✅ Groq کے "ہلوسینیشن" والے جملے فلٹر کریں
+    const junkPhrases = [
+      "شکریہ", "شکریہ۔", "آپ کا شکریہ", "سبسکرائب", "ترجمہ",
+      "ذیلی عنوانات", "موسیقی", "Subscribe", "Thanks for watching",
+      "تماشائیوں", "کا ترجمہ"
+    ];
+    const isJunk = junkPhrases.some(j => txt.includes(j));
+    if(isJunk){
+      console.log("🚫 Junk ٹیکسٹ نظر انداز کیا:", txt);
+      return;
     }
+
+    // ✅ صرف نئے ٹیکسٹ کو موازنہ کریں (پرانا نہ جوڑیں)
+    // تاکہ لال نشان خود بخود ختم ہو جائے جب صارف صحیح پڑھے
+    highlightWords(txt);
 
   }catch(error){
     statusEl.textContent = "❌ API ایرر: " + error.message;
@@ -288,24 +307,42 @@ async function sendToGroq(audioBlob){
   }
 }
 
+// ---------- ✅ خاموشی چیک کرنے والا فنکشن ----------
+function hasSound(){
+  if(!analyser) return true;
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(data);
+  let sum = 0;
+  for(let i=0; i<data.length; i++) sum += data[i];
+  const avg = sum / data.length;
+  return avg > 5; // اگر اوسط 5 سے زیادہ ہے تو آواز ہے
+}
+
 // ---------- ریکارڈنگ ----------
 async function startRecording(){
   try{
     audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     listening = true;
     finalText = "";
+
+    // ✅ آڈیو اینالیزر بنائیں (خاموشی چیک کرنے کے لیے)
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioContext.createMediaStreamSource(audioStream);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+
     recordChunk();
 
     recordingTimer = setInterval(() => {
       if(listening && mediaRecorder && mediaRecorder.state === "recording"){
         mediaRecorder.stop();
       }
-    }, 5000);
+    }, 6000); // 6 سیکنڈ کے chunk
 
   }catch(error){
     statusEl.textContent = "❌ مائیک کی اجازت نہیں ملی";
     statusEl.style.color = "#b32121";
-    console.error(error);
   }
 }
 
@@ -323,31 +360,27 @@ function recordChunk(){
     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
     audioChunks = [];
 
-    if(audioBlob.size > 1000){
+    // ✅ صرف تب بھیجیں جب واقعی آواز ہو
+    if(hasSound() && audioBlob.size > 5000){
       await sendToGroq(audioBlob);
+    } else {
+      console.log("🔇 خاموشی — Groq پر نہیں بھیجا");
     }
 
     if(listening) recordChunk();
   };
 
   mediaRecorder.start();
-  statusEl.textContent = "🎙️ ریکارڈنگ جاری ہے…";
+  statusEl.textContent = "🎙️ ریکارڈنگ جاری ہے… پڑھتے جائیں";
   statusEl.style.color = "#176b3a";
 }
 
 function stopRecording(){
   listening = false;
-  if(recordingTimer){
-    clearInterval(recordingTimer);
-    recordingTimer = null;
-  }
-  if(mediaRecorder && mediaRecorder.state === "recording"){
-    mediaRecorder.stop();
-  }
-  if(audioStream){
-    audioStream.getTracks().forEach(t => t.stop());
-    audioStream = null;
-  }
+  if(recordingTimer){ clearInterval(recordingTimer); recordingTimer = null; }
+  if(mediaRecorder && mediaRecorder.state === "recording"){ mediaRecorder.stop(); }
+  if(audioStream){ audioStream.getTracks().forEach(t => t.stop()); audioStream = null; }
+  if(audioContext){ audioContext.close(); audioContext = null; analyser = null; }
   statusEl.textContent = "⏹️ سننا بند";
 }
 
