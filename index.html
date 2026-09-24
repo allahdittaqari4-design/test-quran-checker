@@ -11,7 +11,6 @@
   .sub{text-align:center;color:#59645b;margin-bottom:14px}
   .card{background:white;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #0001}
   .ayah{font-size:29px;line-height:2.15;text-align:right}
-  .ayah-num{font-size:18px;color:#657165}
   button{border:0;border-radius:12px;padding:13px 17px;font-size:17px;margin:4px;cursor:pointer}
   #start{background:#176b3a;color:#fff}
   #stop{background:#a52b2b;color:#fff}
@@ -45,7 +44,7 @@
   </div>
 
   <div class="card small">
-    <b>اہم نوٹ:</b> یہ ایپ اب پوری سورت کو ایک ہی تسلسل میں سنتی ہے۔ آپ کہیں بھی رک سکتے ہیں، ایپ آپ کی رفتار کے مطابق چلے گی۔ صرف جب آپ غلط پڑھیں گے تو نشاندہی ہوگی۔ پوری سورت مکمل ہونے پر "ماشاءاللہ" کہے گی۔
+    <b>اہم نوٹ:</b> یہ ایپ پوری سورت کو ایک ہی تسلسل میں سنتی ہے۔ آپ کہیں بھی رک سکتے ہیں، ایپ آپ کی رفتار کے مطابق چلے گی۔ صرف جب آپ غلط پڑھیں گے تو نشاندہی ہوگی۔
   </div>
 </div>
 
@@ -53,12 +52,9 @@
 // پوری سورت ایک ہی تسلسل میں
 const fullSurah = "وَالسَّمَاءِ ذَاتِ الْبُرُوجِ وَالْيَوْمِ الْمَوْعُودِ وَشَاهِدٍ وَمَشْهُودٍ قُتِلَ أَصْحَابُ الْأُخْدُودِ النَّارِ ذَاتِ الْوَقُودِ إِذْ هُمْ عَلَيْهَا قُعُودٌ وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِالْمُؤْمِنِينَ شُهُودٌ وَمَا نَقَمُوا مِنْهُمْ إِلَّا أَنْ يُؤْمِنُوا بِاللَّهِ الْعَزِيزِ الْحَمِيدِ الَّذِي لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ إِنَّ الَّذِينَ فَتَنُوا الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ ثُمَّ لَمْ يَتُوبُوا فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ الْحَرِيقِ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ جَنَّاتٌ تَجْرِي مِنْ تَحْتِهَا الْأَنْهَارُ ذَٰلِكَ الْفَوْزُ الْكَبِيرُ إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ وَهُوَ الْغَفُورُ الْوَدُودُ ذُو الْعَرْشِ الْمَجِيدُ فَعَّالٌ لِمَا يُرِيدُ هَلْ أَتَاكَ حَدِيثُ الْجُنُودِ فِرْعَوْنَ وَثَمُودَ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّهُ مِنْ وَرَائِهِمْ مُحِيطٌ بَلْ هُوَ قُرْآنٌ مَجِيدٌ فِي لَوْحٍ مَحْفُوظٍ";
 
-// قرآن کے اصل الفاظ (صاف شدہ)
 let targetWords = [];
 let spokenWords = []; // صارف کے پڑھے گئے الفاظ کا ریکارڈ
-
-let recognition=null, listening=false, finalText="", checkTimer=null;
-const SILENCE_BEFORE_CHECK_MS=3000; // 3 سیکنڈ کی خاموشی کے بعد چیک کرے گا
+let recognition=null, listening=false, finalText="";
 const ayahEl=document.getElementById("ayah");
 const heardEl=document.getElementById("heard"), msgEl=document.getElementById("message");
 const statusEl=document.getElementById("status");
@@ -75,7 +71,7 @@ function normalize(s){
 }
 function words(s){return normalize(s).split(" ").filter(Boolean)}
 
-// ✅ نیا فنکشن: مسلسل دہرائے گئے الفاظ کو ہٹا دیتا ہے (مد کے لیے)
+// ✅ دہرائے گئے الفاظ ہٹانے والا فنکشن (مد کے لیے)
 function removeRepeatedWords(arr){
   const cleaned = [];
   for(let k=0; k<arr.length; k++){
@@ -86,45 +82,21 @@ function removeRepeatedWords(arr){
   return cleaned;
 }
 
-function render(){
-  const ws = fullSurah.split(" ");
-  ayahEl.innerHTML = ws.map(w=>`<span class="target-word">${w}</span>`).join(" ");
-  heardEl.textContent = "—"; msgEl.textContent = "";
-  targetWords = words(fullSurah);
-  spokenWords = [];
-  statusEl.textContent = "تیار ہے";
-}
-
-// یہ فنکشن اب صرف غلطی کی نشاندہی کرتا ہے، "ماشاءاللہ" نہیں کہتا
-function compareContinuous(spoken){
+// ✅ یہ فنکشن صرف غلطی کی نشاندہی کرتا ہے، "ماشاءاللہ" نہیں کہتا
+function checkErrors(spoken){
   if(!spoken || !spoken.length) return;
   
-  // صارف کے نئے پڑھے گئے الفاظ کو پرانے ریکارڈ میں شامل کریں
   let got = words(spoken);
-  got = removeRepeatedWords(got); // مد والے دہرائے الفاظ ہٹا دیے
+  got = removeRepeatedWords(got);
   
-  // ابھی تک جو پڑھا گیا، اسے کل ریکارڈ میں شامل کریں
-  // (ہم صرف نیا ٹیکسٹ لے رہے ہیں، اس لیے اسے ملاتے جائیں گے)
-  
-  // سب سے پہلے، موجودہ ٹیکسٹ کو مکمل ریکارڈ کے طور پر لیں
-  let allSpoken = words(spoken);
-  allSpoken = removeRepeatedWords(allSpoken);
-  
-  // اگر صارف نے پہلے کچھ پڑھا ہے تو اسے جوڑیں (لیکن ہم اسے سادہ رکھنے کے لیے صرف موجودہ ٹیکسٹ دیکھیں گے)
-  // دراصل، ہم یہاں صرف موجودہ ٹیکسٹ کا موازنہ کریں گے، لیکن یہ یاد رکھیں گے کہ صارف نے کہاں تک پڑھا تھا
-  
-  // سب سے آسان طریقہ: صارف کے پورے ٹیکسٹ کا موازنہ کریں (جو ابھی تک پڑھا گیا)
-  // لیکن چونکہ Speech Recognition لگاتار ٹیکسٹ دیتا ہے، ہم اسے جوڑتے جائیں گے
-  
-  // یہاں ہم صرف یہ دیکھیں گے کہ صارف کا موجودہ ٹیکسٹ قرآن سے کتنا میل کھاتا ہے
   let out = "", errors = 0;
-  const n = Math.min(targetWords.length, allSpoken.length);
+  const n = Math.min(targetWords.length, got.length);
   
   for(let k=0; k<n; k++){
-    if(targetWords[k] === allSpoken[k]){
-      out += `<span class="ok">${allSpoken[k]}</span> `;
+    if(targetWords[k] === got[k]){
+      out += `<span class="ok">${got[k]}</span> `;
     } else {
-      out += `<span class="bad">${allSpoken[k]}</span> `;
+      out += `<span class="bad">${got[k]}</span> `;
       errors++;
     }
   }
@@ -134,17 +106,13 @@ function compareContinuous(spoken){
   if(errors > 0){
     msgEl.innerHTML = `<b class="bad">⚠️ ${errors} لفظ(وں) میں فرق ملا۔</b>`;
     statusEl.textContent = "⚠️ غلطی ملی — براہ کرم دوبارہ پڑھیں";
-    if("speechSynthesis" in window){
-      const u = new SpeechSynthesisUtterance("ایک لفظ میں فرق ہے");
-      u.lang = "ur-PK"; speechSynthesis.cancel(); speechSynthesis.speak(u);
-    }
   } else {
     msgEl.innerHTML = `<b class="ok">✅ اب تک کے الفاظ درست ہیں۔</b>`;
     statusEl.textContent = "👂 سن رہا ہوں… پڑھتے جائیں";
   }
   
-  // اگر صارف نے پوری سورت مکمل کر لی
-  if(allSpoken.length >= targetWords.length){
+  // پوری سورت مکمل ہونے پر
+  if(got.length >= targetWords.length){
     msgEl.innerHTML = '<b class="ok">ماشاءاللہ! آپ نے پوری سورت درست سنائی۔</b>';
     statusEl.textContent = "✅ سورت مکمل اور درست";
     if("speechSynthesis" in window){
@@ -161,9 +129,11 @@ function makeRecognition(){
   if(!SR){statusEl.textContent="اس براؤزر میں آواز پہچاننے کی سہولت نہیں۔ Chrome استعمال کریں۔";return null;}
   const r=new SR();
   r.lang="ar-SA"; r.continuous=true; r.interimResults=true;
-  r.onstart=()=>{listening=true;finalText="";if(checkTimer)clearTimeout(checkTimer);statusEl.textContent="🎙️ سن رہا ہوں… پوری سورت پڑھتے جائیں";};
+  r.onstart=()=>{listening=true;finalText="";statusEl.textContent="🎙️ سن رہا ہوں… پوری سورت پڑھتے جائیں";};
   r.onerror=e=>{statusEl.textContent="مائیک/آواز کا مسئلہ: "+e.error;};
   r.onend=()=>{if(listening){try{r.start()}catch(e){}}else statusEl.textContent="سننا بند ہے";};
+  
+  // ✅ یہاں سب سے اہم تبدیلی ہے: ہر بار ٹیکسٹ آنے پر فوراً چیک کریں
   r.onresult=e=>{
     let interim="";
     for(let j=e.resultIndex;j<e.results.length;j++){
@@ -172,20 +142,11 @@ function makeRecognition(){
       else interim+=(interim?" ":"")+t;
     }
     heardEl.textContent=(finalText+" "+interim).trim()||"—";
-    statusEl.textContent="👂 سن رہا ہوں… پڑھتے جائیں";
     
-    // ہر بار جب صارف کچھ پڑھتا ہے، ہم فوراً موازنہ کریں گے (تاکہ غلطی کا فوراً پتہ چلے)
+    // ✅ فوراً چیک کریں (کوئی انتظار نہیں)
     if(finalText.trim()){
-      compareContinuous(finalText.trim());
+      checkErrors(finalText.trim());
     }
-    
-    if(checkTimer)clearTimeout(checkTimer);
-    checkTimer=setTimeout(()=>{
-      if(listening && finalText.trim()){
-        // خاموشی کے بعد دوبارہ چیک کریں (لیکن اب یہ صرف غلطی کی نشاندہی کرے گا)
-        compareContinuous(finalText.trim());
-      }
-    },SILENCE_BEFORE_CHECK_MS);
   };
   return r;
 }
@@ -209,15 +170,17 @@ document.getElementById("start").onclick=()=>{
 };
 document.getElementById("stop").onclick=()=>{
   listening=false;
-  if(checkTimer) clearTimeout(checkTimer);
   if(recognition) recognition.stop();
   statusEl.textContent="سننا بند ہے";
-  // جب صارف خود بند کرے، تو اب تک کے نتائج دکھائے
   if(finalText.trim()){
-    compareContinuous(finalText.trim());
+    checkErrors(finalText.trim());
   }
 };
-render();
+
+// انیشیئلائز
+targetWords = words(fullSurah);
+const ws = fullSurah.split(" ");
+ayahEl.innerHTML = ws.map(w=>`<span class="target-word">${w}</span>`).join(" ");
 </script>
 </body>
 </html>
