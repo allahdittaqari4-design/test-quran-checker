@@ -1,416 +1,1910 @@
+```html
 <!doctype html>
 <html lang="ur" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
 <title>مصحفِ حفظ — سورۃ البروج | Groq API</title>
+
 <style>
-  body{font-family:system-ui,-apple-system,"Noto Naskh Arabic","Noto Sans Arabic",sans-serif;background:#f5f7f5;margin:0;color:#172018}
-  .wrap{max-width:850px;margin:auto;padding:16px}
-  h1{text-align:center;margin:8px 0 4px}
-  .sub{text-align:center;color:#59645b;margin-bottom:14px}
-  .card{background:white;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #0001}
-  .ayah{font-size:32px;line-height:2.4;text-align:right}
-  button{border:0;border-radius:12px;padding:13px 17px;font-size:17px;margin:4px;cursor:pointer}
-  #start{background:#176b3a;color:#fff}
-  #stop{background:#a52b2b;color:#fff}
-  #reset{background:#8a6d31;color:#fff}
-  #status{font-weight:700;text-align:center;margin:10px 0;font-size:15px}
-  .word{padding:2px 4px;border-radius:6px;transition:background 0.2s}
-  .word.ok{color:#176b3a}
-  .word.bad{color:#b32121;background:#ffe0e0;text-decoration:underline;font-weight:800}
-  .word.current{background:#fff3b0}
-  .small{font-size:13px;color:#6b746c;line-height:1.7}
-  .controls{text-align:center}
+  body{
+    font-family:system-ui,-apple-system,"Noto Naskh Arabic",
+    "Noto Sans Arabic",sans-serif;
+    background:#f5f7f5;
+    margin:0;
+    color:#172018;
+  }
+
+  .wrap{
+    max-width:850px;
+    margin:auto;
+    padding:16px;
+  }
+
+  h1{
+    text-align:center;
+    margin:8px 0 4px;
+  }
+
+  .sub{
+    text-align:center;
+    color:#59645b;
+    margin-bottom:14px;
+    line-height:1.8;
+  }
+
+  .card{
+    background:white;
+    border-radius:18px;
+    padding:16px;
+    margin:12px 0;
+    box-shadow:0 2px 12px #0001;
+  }
+
+  .ayah{
+    font-size:32px;
+    line-height:2.4;
+    text-align:right;
+  }
+
+  button{
+    border:0;
+    border-radius:12px;
+    padding:13px 17px;
+    font-size:17px;
+    margin:4px;
+    cursor:pointer;
+  }
+
+  button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+
+  #start{
+    background:#176b3a;
+    color:#fff;
+  }
+
+  #stop{
+    background:#a52b2b;
+    color:#fff;
+  }
+
+  #reset{
+    background:#8a6d31;
+    color:#fff;
+  }
+
+  #status{
+    font-weight:700;
+    text-align:center;
+    margin:10px 0;
+    font-size:15px;
+    min-height:24px;
+  }
+
+  .progress{
+    height:10px;
+    background:#e5e9e5;
+    border-radius:20px;
+    overflow:hidden;
+    margin:12px 0 5px;
+  }
+
+  .progress-bar{
+    height:100%;
+    width:0%;
+    background:#176b3a;
+    transition:width .3s;
+  }
+
+  .progress-text{
+    text-align:center;
+    color:#59645b;
+    font-size:13px;
+  }
+
+  .word{
+    padding:2px 4px;
+    border-radius:6px;
+    transition:background .2s,color .2s;
+  }
+
+  .word.ok{
+    color:#176b3a;
+  }
+
+  .word.bad{
+    color:#b32121;
+    background:#ffe0e0;
+    text-decoration:underline;
+    font-weight:800;
+  }
+
+  .word.current{
+    background:#fff3b0;
+    color:#172018;
+  }
+
+  .word.skipped{
+    color:#b32121;
+    background:#ffe0e0;
+    text-decoration:underline;
+  }
+
+  .small{
+    font-size:13px;
+    color:#6b746c;
+    line-height:1.8;
+  }
+
+  .controls{
+    text-align:center;
+  }
 
   .key-overlay{
-    position:fixed;top:0;left:0;width:100%;height:100%;
-    background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;
-    z-index:9999;padding:16px;box-sizing:border-box;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    padding:16px;
+    box-sizing:border-box;
   }
+
   .key-box{
-    background:white;border-radius:18px;padding:22px;max-width:420px;width:100%;
+    background:white;
+    border-radius:18px;
+    padding:22px;
+    max-width:420px;
+    width:100%;
     box-shadow:0 8px 40px #0005;
   }
-  .key-box h2{margin:0 0 8px;font-size:20px;color:#176b3a}
-  .key-box p{margin:0 0 14px;font-size:14px;color:#59645b;line-height:1.7}
+
+  .key-box h2{
+    margin:0 0 8px;
+    font-size:20px;
+    color:#176b3a;
+  }
+
+  .key-box p{
+    margin:0 0 14px;
+    font-size:14px;
+    color:#59645b;
+    line-height:1.7;
+  }
+
   .key-box input{
-    width:100%;padding:12px;border:2px solid #e0e6e1;border-radius:10px;
-    font-size:15px;box-sizing:border-box;font-family:monospace;direction:ltr;
+    width:100%;
+    padding:12px;
+    border:2px solid #e0e6e1;
+    border-radius:10px;
+    font-size:15px;
+    box-sizing:border-box;
+    font-family:monospace;
+    direction:ltr;
   }
-  .key-box input:focus{outline:0;border-color:#176b3a}
+
+  .key-box input:focus{
+    outline:0;
+    border-color:#176b3a;
+  }
+
   .key-box button{
-    width:100%;margin-top:12px;background:#176b3a;color:#fff;padding:14px;
-    font-size:16px;font-weight:700;
+    width:100%;
+    margin-top:12px;
+    background:#176b3a;
+    color:#fff;
+    padding:14px;
+    font-size:16px;
+    font-weight:700;
   }
-  .key-box .hint{font-size:12px;color:#8a6d31;margin-top:10px;line-height:1.6}
+
+  .key-box .hint{
+    font-size:12px;
+    color:#8a6d31;
+    margin-top:10px;
+    line-height:1.6;
+  }
 </style>
 </head>
+
 <body>
 
+<!-- =========================================================
+     API KEY BOX
+========================================================= -->
+
 <div class="key-overlay" id="keyOverlay">
+
   <div class="key-box">
+
     <h2>🔑 Groq API Key درج کریں</h2>
-    <p>ایپ استعمال کرنے کے لیے اپنی Groq API Key درج کریں۔</p>
-    <input type="password" id="keyInput" placeholder="gsk_..." autocomplete="off">
-    <button id="saveKey">✅ محفوظ کریں اور شروع کریں</button>
+
+    <p>
+      ایپ استعمال کرنے کے لیے اپنی Groq API Key درج کریں۔
+    </p>
+
+    <input
+      type="password"
+      id="keyInput"
+      placeholder="gsk_..."
+      autocomplete="off"
+    >
+
+    <button id="saveKey">
+      ✅ محفوظ کریں اور شروع کریں
+    </button>
+
     <div class="hint">
-      💡 Key نہیں ہے؟ <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> سے مفت بنائیں۔
+      💡 Key نہیں ہے؟
+      <a href="https://console.groq.com/keys"
+         target="_blank">
+        console.groq.com/keys
+      </a>
+      سے بنائیں۔
     </div>
+
   </div>
+
 </div>
+
 
 <div class="wrap">
+
   <h1>سورۃ البروج — حفظ سنانے والا</h1>
-  <div class="sub">مائیک دبائیں اور پڑھنا شروع کریں؛ ایپ صرف غلطی پر نشاندہی کرے گی۔</div>
+
+  <div class="sub">
+    مائیک دبائیں اور پڑھنا شروع کریں؛
+    ایپ آپ کی آواز کو مرحلہ وار قرآن کے اصل الفاظ سے ملائے گی۔
+  </div>
+
+
+  <!-- =======================================================
+       CONTROLS
+  ======================================================== -->
 
   <div class="card controls">
-    <button id="start">🎙️ سننا شروع کریں</button>
-    <button id="micTest" style="background:#315a8a;color:#fff">🎤 مائیک چیک کریں</button>
-    <button id="reset">🔄 ری سیٹ کریں</button>
-    <button id="stop">⏹️ بند کریں</button>
-    <button id="changeKey" style="background:#8a6d31;color:#fff">🔑 Key بدلیں</button>
-    <div id="status">تیار ہے</div>
+
+    <button id="start">
+      🎙️ سننا شروع کریں
+    </button>
+
+    <button id="micTest"
+            style="background:#315a8a;color:#fff">
+      🎤 مائیک چیک کریں
+    </button>
+
+    <button id="reset">
+      🔄 ری سیٹ کریں
+    </button>
+
+    <button id="stop">
+      ⏹️ بند کریں
+    </button>
+
+    <button id="changeKey"
+            style="background:#8a6d31;color:#fff">
+      🔑 Key بدلیں
+    </button>
+
+    <div id="status">
+      تیار ہے
+    </div>
+
+    <!-- Progress -->
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="progress-text" id="progressText">
+      0 / 112 الفاظ
+    </div>
+
   </div>
+
+
+  <!-- =======================================================
+       QURAN
+  ======================================================== -->
 
   <div class="card">
+
     <div id="ayah" class="ayah"></div>
+
   </div>
+
+
+  <!-- =======================================================
+       NOTE
+  ======================================================== -->
 
   <div class="card small">
-    <b>نوٹ:</b> یہ ایپ Groq Whisper API استعمال کرتی ہے۔ آواز صرف اسی صورت بھیجی جائے گی جب واقعی کوئی آواز ہو۔
+
+    <b>طریقۂ کار:</b>
+
+    ایپ آپ کی آواز کو چھوٹے حصوں میں Groq Whisper کے ذریعے
+    عربی متن میں تبدیل کرتی ہے، پھر موجودہ مقام سے آگے کے
+    قرآنی الفاظ کے ساتھ موازنہ کرتی ہے۔
+
+    <br><br>
+
+    <b>اہم:</b>
+
+    اگر Whisper کسی لفظ کو چھوڑ دے یا غلط سن لے تو پوری سورت
+    کے باقی الفاظ کو ایک ساتھ غلط قرار دینے کے بجائے ایپ
+    دوبارہ مناسب مقام تلاش کرنے کی کوشش کرتی ہے۔
+
   </div>
+
 </div>
 
-<script>
-// ============================================================
-// API Key کو localStorage سے لیں گے
-// ============================================================
-let GROQ_API_KEY = localStorage.getItem('groq_api_key') || '';
 
-const fullSurah = "وَالسَّمَاءِ ذَاتِ الْبُرُوجِ وَالْيَوْمِ الْمَوْعُودِ وَشَاهِدٍ وَمَشْهُودٍ قُتِلَ أَصْحَابُ الْأُخْدُودِ النَّارِ ذَاتِ الْوَقُودِ إِذْ هُمْ عَلَيْهَا قُعُودٌ وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِالْمُؤْمِنِينَ شُهُودٌ وَمَا نَقَمُوا مِنْهُمْ إِلَّا أَنْ يُؤْمِنُوا بِاللَّهِ الْعَزِيزِ الْحَمِيدِ الَّذِي لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ إِنَّ الَّذِينَ فَتَنُوا الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ ثُمَّ لَمْ يَتُوبُوا فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ الْحَرِيقِ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ جَنَّاتٌ تَجْرِي مِنْ تَحْتِهَا الْأَنْهَارُ ذَٰلِكَ الْفَوْزُ الْكَبِيرُ إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ وَهُوَ الْغَفُورُ الْوَدُودُ ذُو الْعَرْشِ الْمَجِيدُ فَعَّالٌ لِمَا يُرِيدُ هَلْ أَتَاكَ حَدِيثُ الْجُنُودِ فِرْعَوْنَ وَثَمُودَ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّهُ مِنْ وَرَائِهِمْ مُحِيطٌ بَلْ هُوَ قُرْآنٌ مَجِيدٌ فِي لَوْحٍ مَحْفُوظٍ";
+<script>
+
+/* ============================================================
+   GROQ API KEY
+============================================================ */
+
+let GROQ_API_KEY =
+  localStorage.getItem("groq_api_key") || "";
+
+
+/* ============================================================
+   سورۃ البروج
+============================================================ */
+
+const fullSurah =
+"وَالسَّمَاءِ ذَاتِ الْبُرُوجِ وَالْيَوْمِ الْمَوْعُودِ وَشَاهِدٍ وَمَشْهُودٍ قُتِلَ أَصْحَابُ الْأُخْدُودِ النَّارِ ذَاتِ الْوَقُودِ إِذْ هُمْ عَلَيْهَا قُعُودٌ وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِالْمُؤْمِنِينَ شُهُودٌ وَمَا نَقَمُوا مِنْهُمْ إِلَّا أَنْ يُؤْمِنُوا بِاللَّهِ الْعَزِيزِ الْحَمِيدِ الَّذِي لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ إِنَّ الَّذِينَ فَتَنُوا الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ ثُمَّ لَمْ يَتُوبُوا فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ الْحَرِيقِ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ جَنَّاتٌ تَجْرِي مِنْ تَحْتِهَا الْأَنْهَارُ ذَٰلِكَ الْفَوْزُ الْكَبِيرُ إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ وَهُوَ الْغَفُورُ الْوَدُودُ ذُو الْعَرْشِ الْمَجِيدُ فَعَّالٌ لِمَا يُرِيدُ هَلْ أَتَاكَ حَدِيثُ الْجُنُودِ فِرْعَوْنَ وَثَمُودَ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّهُ مِنْ وَرَائِهِمْ مُحِيطٌ بَلْ هُوَ قُرْآنٌ مَجِيدٌ فِي لَوْحٍ مَحْفُوظٍ";
+
+
+/* ============================================================
+   GLOBAL VARIABLES
+============================================================ */
 
 let targetWords = [];
 let targetNormalized = [];
+
 let listening = false;
-let finalText = "";     // Groq سے موصول ہونے والا ٹیکسٹ
+
 let mediaRecorder = null;
 let audioChunks = [];
-let recordingTimer = null;
+
 let audioStream = null;
 let audioContext = null;
 let analyser = null;
-let silenceCheckInterval = null;
 
-const ayahEl = document.getElementById("ayah");
-const statusEl = document.getElementById("status");
+let recordingTimer = null;
 
-// ---------- API Key Box ----------
-const keyOverlay = document.getElementById("keyOverlay");
-const keyInput = document.getElementById("keyInput");
+let nextTargetIndex = 0;
 
-if(GROQ_API_KEY && GROQ_API_KEY.startsWith('gsk_')){
-  keyOverlay.style.display = 'none';
+let lastRecognizedWord = "";
+
+let processingChunk = false;
+
+
+/*
+   ایک chunk تقریباً کتنے سیکنڈ کا ہو
+*/
+const CHUNK_SECONDS = 6;
+
+
+/*
+   Matching window:
+
+   موجودہ لفظ سے آگے زیادہ سے زیادہ 8 الفاظ میں
+   مناسب match تلاش کیا جائے گا۔
+*/
+const SEARCH_WINDOW = 8;
+
+
+/*
+   exact match کے لیے زیادہ ترجیح
+*/
+const GOOD_MATCH = 0.72;
+
+
+/* ============================================================
+   DOM
+============================================================ */
+
+const ayahEl =
+  document.getElementById("ayah");
+
+const statusEl =
+  document.getElementById("status");
+
+const progressBar =
+  document.getElementById("progressBar");
+
+const progressText =
+  document.getElementById("progressText");
+
+const keyOverlay =
+  document.getElementById("keyOverlay");
+
+const keyInput =
+  document.getElementById("keyInput");
+
+
+/* ============================================================
+   API KEY
+============================================================ */
+
+if(
+  GROQ_API_KEY &&
+  GROQ_API_KEY.startsWith("gsk_")
+){
+  keyOverlay.style.display = "none";
 }
 
+
+/*
+   Key محفوظ کرنا
+*/
 document.getElementById("saveKey").onclick = () => {
+
   const k = keyInput.value.trim();
-  if(!k || !k.startsWith('gsk_')){
-    alert('براہ کرم درست Groq API Key درج کریں (gsk_ سے شروع ہونی چاہیے)');
+
+  if(
+    !k ||
+    !k.startsWith("gsk_")
+  ){
+
+    alert(
+      "براہ کرم درست Groq API Key درج کریں۔"
+    );
+
     return;
   }
+
   GROQ_API_KEY = k;
-  localStorage.setItem('groq_api_key', k);
-  keyOverlay.style.display = 'none';
-  statusEl.textContent = "✅ API Key محفوظ ہو گئی";
-  statusEl.style.color = "#176b3a";
+
+  localStorage.setItem(
+    "groq_api_key",
+    k
+  );
+
+  keyOverlay.style.display = "none";
+
+  statusEl.textContent =
+    "✅ API Key محفوظ ہو گئی";
+
+  statusEl.style.color =
+    "#176b3a";
 };
 
+
+/*
+   Key بدلنا
+*/
 document.getElementById("changeKey").onclick = () => {
-  keyInput.value = '';
-  keyOverlay.style.display = 'flex';
+
+  keyInput.value = "";
+
+  keyOverlay.style.display = "flex";
+
 };
 
-// ---------- نارملائزیشن ----------
-function normalize(s){
-  return s.normalize("NFD")
-    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,"")
-    .replace(/[إأٱآ]/g,"ا").replace(/ى/g,"ی").replace(/ي/g,"ی")
-    .replace(/ؤ/g,"و").replace(/ئ/g,"ی")
-    .replace(/[ـۖۗۚۛۜۙۘۚۛ۞]/g,"")
-    .replace(/[،؛,.!?؟]/g," ")
-    .replace(/[^\u0600-\u06FF\s]/g," ")
-    .replace(/\s+/g," ").trim();
-}
-function words(s){ return normalize(s).split(" ").filter(Boolean); }
 
-function removeRepeatedWords(arr){
-  const cleaned = [];
-  for(let k=0; k<arr.length; k++){
-    if(k === 0 || arr[k] !== arr[k-1]) cleaned.push(arr[k]);
+/* ============================================================
+   NORMALIZATION
+============================================================ */
+
+function normalize(text){
+
+  return text
+
+    .normalize("NFD")
+
+    /*
+      حرکات
+    */
+    .replace(
+      /[\u064B-\u065F\u0670\u06D6-\u06ED]/g,
+      ""
+    )
+
+    /*
+      عربی حروف normalize
+    */
+    .replace(/[إأٱآ]/g,"ا")
+    .replace(/ى/g,"ی")
+    .replace(/ي/g,"ی")
+    .replace(/ؤ/g,"و")
+    .replace(/ئ/g,"ی")
+
+    /*
+      قرآن کی بعض علامات
+    */
+    .replace(
+      /[ـۖۗۚۛۜۙۘ۞]/g,
+      ""
+    )
+
+    /*
+      punctuation
+    */
+    .replace(
+      /[،؛,.!?؟]/g,
+      " "
+    )
+
+    /*
+      صرف عربی حروف + space
+    */
+    .replace(
+      /[^\u0600-\u06FF\s]/g,
+      " "
+    )
+
+    .replace(
+      /\s+/g,
+      " "
+    )
+
+    .trim();
+}
+
+
+/*
+   الفاظ بنانا
+*/
+function words(text){
+
+  const n = normalize(text);
+
+  if(!n){
+    return [];
   }
-  return cleaned;
+
+  return n
+    .split(" ")
+    .filter(Boolean);
 }
 
-// ---------- نرم موازنہ ----------
-function similarity(a, b){
-  if(a === b) return 1.0;
-  if(!a || !b) return 0.0;
-  const longer = a.length > b.length ? a : b;
-  const shorter = a.length > b.length ? b : a;
-  if(longer.length === 0) return 1.0;
+
+/* ============================================================
+   WORD SIMILARITY
+============================================================ */
+
+function similarity(a,b){
+
+  if(a === b){
+    return 1;
+  }
+
+  if(!a || !b){
+    return 0;
+  }
+
+  const longer =
+    a.length > b.length ? a : b;
+
+  const shorter =
+    a.length > b.length ? b : a;
+
+  if(longer.length === 0){
+    return 1;
+  }
+
   const matrix = [];
-  for(let i=0; i<=shorter.length; i++) matrix[i] = [i];
-  for(let j=0; j<=longer.length; j++) matrix[0][j] = j;
-  for(let i=1; i<=shorter.length; i++){
-    for(let j=1; j<=longer.length; j++){
-      const cost = shorter[i-1] === longer[j-1] ? 0 : 1;
-      matrix[i][j] = Math.min(
-        matrix[i-1][j] + 1,
-        matrix[i][j-1] + 1,
-        matrix[i-1][j-1] + cost
-      );
-    }
+
+  for(
+    let i=0;
+    i<=shorter.length;
+    i++
+  ){
+
+    matrix[i] = [i];
+
   }
-  const distance = matrix[shorter.length][longer.length];
-  return (longer.length - distance) / longer.length;
-}
-function fuzzyMatch(target, got){
-  return similarity(target, got) >= 0.6; // 60% مماثلت (کم کیا تاکہ مد اور لہجہ برداشت ہو)
+
+  for(
+    let j=0;
+    j<=longer.length;
+    j++
+  ){
+
+    matrix[0][j] = j;
+
+  }
+
+  for(
+    let i=1;
+    i<=shorter.length;
+    i++
+  ){
+
+    for(
+      let j=1;
+      j<=longer.length;
+      j++
+    ){
+
+      const cost =
+        shorter[i-1] === longer[j-1]
+        ? 0
+        : 1;
+
+      matrix[i][j] =
+        Math.min(
+
+          matrix[i-1][j] + 1,
+
+          matrix[i][j-1] + 1,
+
+          matrix[i-1][j-1] + cost
+
+        );
+
+    }
+
+  }
+
+  const distance =
+    matrix[
+      shorter.length
+    ][
+      longer.length
+    ];
+
+  return (
+    longer.length - distance
+  ) / longer.length;
 }
 
-// ---------- قرآن رینڈر ----------
+
+/* ============================================================
+   بہتر WORD MATCH
+============================================================ */
+
+function wordMatch(target, spoken){
+
+  /*
+    بالکل برابر
+  */
+  if(target === spoken){
+    return 1;
+  }
+
+  /*
+    بہت چھوٹے الفاظ میں fuzzy matching
+    خطرناک ہو سکتی ہے۔
+  */
+  if(
+    target.length <= 2 ||
+    spoken.length <= 2
+  ){
+
+    return 0;
+  }
+
+  return similarity(
+    target,
+    spoken
+  );
+}
+
+
+/* ============================================================
+   QURAN RENDER
+============================================================ */
+
 function renderSurah(){
-  const ws = fullSurah.split(" ");
-  ayahEl.innerHTML = ws.map((w, idx)=>{
-    return `<span class="word" data-idx="${idx}">${w}</span>`;
-  }).join(" ");
+
+  const ws =
+    fullSurah.split(/\s+/);
+
   targetWords = ws;
-  targetNormalized = words(fullSurah);
-}
 
-// ---------- ری سیٹ ----------
-function resetAll(){
-  finalText = "";
-  const spans = ayahEl.querySelectorAll(".word");
-  spans.forEach(s => s.classList.remove("ok","bad","current"));
-  statusEl.textContent = "🔄 ری سیٹ ہو گیا — دوبارہ شروع کریں";
-  statusEl.style.color = "#8a6d31";
-}
+  targetNormalized =
+    ws.map(w => normalize(w));
 
-// ---------- ✅ صرف نئے ٹیکسٹ کی جانچ (پرانا نہیں جوڑتے) ----------
-function highlightWords(spokenText){
-  const got = removeRepeatedWords(words(spokenText));
-  const spans = ayahEl.querySelectorAll(".word");
+  ayahEl.innerHTML =
+    ws.map(
+      (w,index) => {
 
-  // ہر بار صاف کریں
-  spans.forEach(s => s.classList.remove("ok","bad","current"));
+        return `
+          <span
+            class="word"
+            data-idx="${index}">
+            ${w}
+          </span>
+        `;
 
-  let errors = 0;
-  let lastMatchedIndex = -1;
-
-  for(let k=0; k<got.length; k++){
-    if(k < targetNormalized.length){
-      const span = spans[k];
-      if(fuzzyMatch(targetNormalized[k], got[k])){
-        span.classList.add("ok");
-        lastMatchedIndex = k;
-      } else {
-        span.classList.add("bad");
-        errors++;
       }
-    }
-  }
+    ).join(" ");
 
-  if(lastMatchedIndex + 1 < spans.length && errors === 0){
-    spans[lastMatchedIndex + 1].classList.add("current");
-  }
+  updateProgress();
 
-  if(errors > 0){
-    statusEl.textContent = `⚠️ ${errors} لفظ(وں) میں غلطی — دوبارہ پڑھیں`;
-    statusEl.style.color = "#b32121";
-  } else {
-    statusEl.textContent = "🎙️ سن رہا ہوں… پڑھتے جائیں";
-    statusEl.style.color = "#176b3a";
-  }
-
-  if(got.length >= targetNormalized.length && errors === 0){
-    statusEl.textContent = "✅ ماشاءاللہ! سورت مکمل";
-    statusEl.style.color = "#176b3a";
-    stopRecording();
-  }
 }
 
-// ---------- ✅ Groq API (خالی/بے معنی ٹیکسٹ فلٹر کے ساتھ) ----------
-async function sendToGroq(audioBlob){
-  if(!GROQ_API_KEY || !GROQ_API_KEY.startsWith('gsk_')){
-    keyOverlay.style.display = 'flex';
+
+/* ============================================================
+   PROGRESS
+============================================================ */
+
+function updateProgress(){
+
+  const total =
+    targetWords.length;
+
+  const done =
+    Math.min(
+      nextTargetIndex,
+      total
+    );
+
+  const percent =
+    total === 0
+    ? 0
+    : (done / total) * 100;
+
+  progressBar.style.width =
+    percent + "%";
+
+  progressText.textContent =
+    `${done} / ${total} الفاظ`;
+
+}
+
+
+/* ============================================================
+   CURRENT WORD
+============================================================ */
+
+function showCurrentWord(){
+
+  const spans =
+    ayahEl.querySelectorAll(".word");
+
+  spans.forEach(
+    s => s.classList.remove("current")
+  );
+
+  if(
+    nextTargetIndex >= spans.length
+  ){
     return;
   }
 
-  // آڈیو بہت چھوٹی ہو تو بھیجیں نہیں (شاید خاموشی ہو)
-  if(audioBlob.size < 5000){
-    return;
-  }
+  spans[
+    nextTargetIndex
+  ].classList.add("current");
 
+  /*
+    موبائل پر موجودہ لفظ نظر میں لانے کی کوشش
+  */
   try{
-    statusEl.textContent = "⏳ Groq سے ٹرانسکرپشن ہو رہی ہے…";
-    statusEl.style.color = "#315a8a";
 
-    const formData = new FormData();
-    formData.append('file', audioBlob, 'recitation.webm');
-    formData.append('model', 'whisper-large-v3-turbo');
-    formData.append('language', 'ar');
-    formData.append('response_format', 'json');
-    formData.append('temperature', '0');
-
-    const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + GROQ_API_KEY },
-      body: formData
+    spans[
+      nextTargetIndex
+    ].scrollIntoView({
+      behavior:"smooth",
+      block:"center"
     });
 
+  }catch(e){}
+
+}
+
+
+/* ============================================================
+   RESET
+============================================================ */
+
+function resetAll(){
+
+  /*
+    اگر recording چل رہی ہو تو پہلے بند کریں
+  */
+  stopRecording(false);
+
+  nextTargetIndex = 0;
+
+  lastRecognizedWord = "";
+
+  processingChunk = false;
+
+  const spans =
+    ayahEl.querySelectorAll(".word");
+
+  spans.forEach(
+    s => {
+
+      s.classList.remove(
+        "ok",
+        "bad",
+        "current",
+        "skipped"
+      );
+
+    }
+  );
+
+  statusEl.textContent =
+    "🔄 ری سیٹ ہو گیا — دوبارہ شروع کریں";
+
+  statusEl.style.color =
+    "#8a6d31";
+
+  updateProgress();
+
+  showCurrentWord();
+
+}
+
+
+/* ============================================================
+   MATCHING SYSTEM
+============================================================ */
+
+/*
+   موجودہ target index سے آگے
+   مناسب لفظ تلاش کریں۔
+*/
+function findBestTarget(
+  spokenWord
+){
+
+  const start =
+    nextTargetIndex;
+
+  const end =
+    Math.min(
+      targetNormalized.length,
+      start + SEARCH_WINDOW
+    );
+
+  let bestIndex = -1;
+
+  let bestScore = 0;
+
+  for(
+    let i=start;
+    i<end;
+    i++
+  ){
+
+    const score =
+      wordMatch(
+        targetNormalized[i],
+        spokenWord
+      );
+
+    if(score > bestScore){
+
+      bestScore = score;
+
+      bestIndex = i;
+
+    }
+
+  }
+
+  return {
+    index: bestIndex,
+    score: bestScore
+  };
+
+}
+
+
+/* ============================================================
+   CHUNK TEXT CHECK
+============================================================ */
+
+function checkSpokenText(spokenText){
+
+  const got =
+    words(spokenText);
+
+  if(got.length === 0){
+    return;
+  }
+
+
+  /*
+    بعض اوقات chunk کے شروع میں
+    پچھلے chunk کا آخری لفظ دوبارہ آ جاتا ہے۔
+  */
+
+  let cleanGot = [];
+
+  for(const word of got){
+
+    if(
+      lastRecognizedWord &&
+      word === lastRecognizedWord &&
+      cleanGot.length === 0
+    ){
+
+      continue;
+
+    }
+
+    cleanGot.push(word);
+
+  }
+
+  if(cleanGot.length === 0){
+    return;
+  }
+
+
+  let errors = 0;
+
+  let matchedSomething = false;
+
+
+  /*
+    ہر spoken word کو موجودہ مقام کے قریب تلاش کریں۔
+  */
+
+  for(
+    const spokenWord of cleanGot
+  ){
+
+    if(
+      nextTargetIndex >=
+      targetNormalized.length
+    ){
+
+      break;
+
+    }
+
+
+    const result =
+      findBestTarget(
+        spokenWord
+      );
+
+
+    /*
+      کوئی مناسب match نہیں ملا
+    */
+
+    if(
+      result.index === -1 ||
+      result.score < GOOD_MATCH
+    ){
+
+      /*
+        ایک extra/غلط transcription word ہے۔
+        Target position آگے نہیں بڑھائیں گے۔
+      */
+
+      errors++;
+
+      continue;
+
+    }
+
+
+    /*
+      اگر match موجودہ index سے آگے ملا
+      تو درمیان کے الفاظ غالباً چھوڑے گئے ہیں۔
+    */
+
+    if(
+      result.index >
+      nextTargetIndex
+    ){
+
+      const spans =
+        ayahEl.querySelectorAll(".word");
+
+      for(
+        let i=nextTargetIndex;
+        i<result.index;
+        i++
+      ){
+
+        spans[i].classList.remove(
+          "current"
+        );
+
+        spans[i].classList.add(
+          "bad"
+        );
+
+      }
+
+      errors +=
+        result.index -
+        nextTargetIndex;
+
+    }
+
+
+    /*
+      matched word
+    */
+
+    const spans =
+      ayahEl.querySelectorAll(".word");
+
+    spans[
+      result.index
+    ].classList.remove(
+      "bad",
+      "current",
+      "skipped"
+    );
+
+    spans[
+      result.index
+    ].classList.add("ok");
+
+
+    /*
+      اب اگلا target word
+    */
+
+    nextTargetIndex =
+      result.index + 1;
+
+    matchedSomething = true;
+
+    lastRecognizedWord =
+      spokenWord;
+
+  }
+
+
+  /*
+    Progress update
+  */
+
+  updateProgress();
+
+  showCurrentWord();
+
+
+  /*
+    مکمل؟
+  */
+
+  if(
+    nextTargetIndex >=
+    targetNormalized.length
+  ){
+
+    statusEl.textContent =
+      "✅ ماشاءاللہ! سورۃ البروج مکمل ہو گئی";
+
+    statusEl.style.color =
+      "#176b3a";
+
+    stopRecording(false);
+
+    return;
+
+  }
+
+
+  /*
+    Status
+  */
+
+  if(errors > 0){
+
+    statusEl.textContent =
+      `⚠️ ${errors} جگہ پر دوبارہ چیک کریں — پڑھتے جائیں`;
+
+    statusEl.style.color =
+      "#b32121";
+
+  }else if(matchedSomething){
+
+    statusEl.textContent =
+      "🎙️ درست — آگے پڑھتے جائیں";
+
+    statusEl.style.color =
+      "#176b3a";
+
+  }else{
+
+    statusEl.textContent =
+      "🎙️ آواز واضح نہیں ملی — دوبارہ پڑھیں";
+
+    statusEl.style.color =
+      "#8a6d31";
+
+  }
+
+}
+
+
+/* ============================================================
+   JUNK TEXT FILTER
+============================================================ */
+
+function isJunkText(txt){
+
+  if(!txt){
+    return true;
+  }
+
+  const t =
+    txt.trim();
+
+  if(t.length < 2){
+    return true;
+  }
+
+  const junkPhrases = [
+
+    "شکریہ",
+    "آپ کا شکریہ",
+    "سبسکرائب",
+    "ترجمہ",
+    "ذیلی عنوانات",
+    "موسیقی",
+    "Subscribe",
+    "Thanks for watching",
+    "تماشائیوں",
+    "کا ترجمہ"
+
+  ];
+
+  return junkPhrases.some(
+    j => t.includes(j)
+  );
+
+}
+
+
+/* ============================================================
+   SEND AUDIO TO GROQ
+============================================================ */
+
+async function sendToGroq(
+  audioBlob
+){
+
+  if(
+    !GROQ_API_KEY ||
+    !GROQ_API_KEY.startsWith("gsk_")
+  ){
+
+    keyOverlay.style.display =
+      "flex";
+
+    return;
+
+  }
+
+
+  /*
+    بہت چھوٹی recording
+    عام طور پر useful نہیں ہوتی۔
+  */
+
+  if(
+    !audioBlob ||
+    audioBlob.size < 5000
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    processingChunk = true;
+
+    statusEl.textContent =
+      "⏳ آواز سمجھ رہا ہوں…";
+
+    statusEl.style.color =
+      "#315a8a";
+
+
+    const formData =
+      new FormData();
+
+    formData.append(
+      "file",
+      audioBlob,
+      "recitation.webm"
+    );
+
+    formData.append(
+      "model",
+      "whisper-large-v3-turbo"
+    );
+
+    formData.append(
+      "language",
+      "ar"
+    );
+
+    formData.append(
+      "response_format",
+      "json"
+    );
+
+    formData.append(
+      "temperature",
+      "0"
+    );
+
+
+    const response =
+      await fetch(
+        "https://api.groq.com/openai/v1/audio/transcriptions",
+        {
+          method:"POST",
+
+          headers:{
+            "Authorization":
+              "Bearer " +
+              GROQ_API_KEY
+          },
+
+          body:formData
+        }
+      );
+
+
     if(!response.ok){
-      statusEl.textContent = "❌ Groq ایرر: " + response.status;
-      statusEl.style.color = "#b32121";
+
+      let errorText =
+        "";
+
+      try{
+
+        errorText =
+          await response.text();
+
+      }catch(e){}
+
+
+      statusEl.textContent =
+        "❌ Groq API ایرر: " +
+        response.status;
+
+      statusEl.style.color =
+        "#b32121";
+
+      console.error(
+        "Groq error:",
+        errorText
+      );
+
       return;
+
     }
 
-    const data = await response.json();
-    let txt = (data.text || '').trim();
-    console.log("📝 Groq ٹرانسکرپشن:", txt);
 
-    // ✅ بے معنی/خالی ٹیکسٹ کو فلٹر کریں
-    if(!txt) return;
-    if(txt.length < 2) return;
+    const data =
+      await response.json();
 
-    // ✅ Groq کے "ہلوسینیشن" والے جملے فلٹر کریں
-    const junkPhrases = [
-      "شکریہ", "شکریہ۔", "آپ کا شکریہ", "سبسکرائب", "ترجمہ",
-      "ذیلی عنوانات", "موسیقی", "Subscribe", "Thanks for watching",
-      "تماشائیوں", "کا ترجمہ"
-    ];
-    const isJunk = junkPhrases.some(j => txt.includes(j));
-    if(isJunk){
-      console.log("🚫 Junk ٹیکسٹ نظر انداز کیا:", txt);
+    const txt =
+      (data.text || "").trim();
+
+
+    console.log(
+      "📝 Groq:",
+      txt
+    );
+
+
+    /*
+      خالی یا junk
+    */
+
+    if(
+      isJunkText(txt)
+    ){
+
+      console.log(
+        "🚫 غیر ضروری transcription:",
+        txt
+      );
+
       return;
+
     }
 
-    // ✅ صرف نئے ٹیکسٹ کو موازنہ کریں (پرانا نہ جوڑیں)
-    // تاکہ لال نشان خود بخود ختم ہو جائے جب صارف صحیح پڑھے
-    highlightWords(txt);
+
+    /*
+      اصل checking
+    */
+
+    checkSpokenText(txt);
+
 
   }catch(error){
-    statusEl.textContent = "❌ API ایرر: " + error.message;
-    statusEl.style.color = "#b32121";
+
+    statusEl.textContent =
+      "❌ API ایرر: " +
+      error.message;
+
+    statusEl.style.color =
+      "#b32121";
+
     console.error(error);
+
+  }finally{
+
+    processingChunk = false;
+
   }
+
 }
 
-// ---------- ✅ خاموشی چیک کرنے والا فنکشن ----------
+
+/* ============================================================
+   SOUND DETECTION
+============================================================ */
+
 function hasSound(){
-  if(!analyser) return true;
-  const data = new Uint8Array(analyser.frequencyBinCount);
-  analyser.getByteFrequencyData(data);
+
+  if(!analyser){
+    return true;
+  }
+
+  const data =
+    new Uint8Array(
+      analyser.frequencyBinCount
+    );
+
+  analyser.getByteFrequencyData(
+    data
+  );
+
   let sum = 0;
-  for(let i=0; i<data.length; i++) sum += data[i];
-  const avg = sum / data.length;
-  return avg > 5; // اگر اوسط 5 سے زیادہ ہے تو آواز ہے
+
+  for(
+    let i=0;
+    i<data.length;
+    i++
+  ){
+
+    sum += data[i];
+
+  }
+
+  const avg =
+    sum / data.length;
+
+  /*
+    background noise کو کم رکھنے کے لیے
+    threshold تھوڑا بڑھایا گیا ہے۔
+  */
+
+  return avg > 7;
+
 }
 
-// ---------- ریکارڈنگ ----------
-async function startRecording(){
-  try{
-    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    listening = true;
-    finalText = "";
 
-    // ✅ آڈیو اینالیزر بنائیں (خاموشی چیک کرنے کے لیے)
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioContext.createMediaStreamSource(audioStream);
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = 512;
-    source.connect(analyser);
+/* ============================================================
+   RECORD CHUNK
+============================================================ */
+
+function recordChunk(){
+
+  if(!listening){
+    return;
+  }
+
+
+  /*
+    browser support
+  */
+
+  if(
+    !window.MediaRecorder
+  ){
+
+    statusEl.textContent =
+      "❌ اس browser میں MediaRecorder دستیاب نہیں۔";
+
+    statusEl.style.color =
+      "#b32121";
+
+    return;
+
+  }
+
+
+  let mimeType =
+    "audio/webm";
+
+
+  /*
+    کچھ browsers میں
+    audio/webm support نہیں ہوتا۔
+  */
+
+  if(
+    !MediaRecorder.isTypeSupported(
+      "audio/webm"
+    )
+  ){
+
+    mimeType = "";
+
+  }
+
+
+  try{
+
+    mediaRecorder =
+      mimeType
+
+      ? new MediaRecorder(
+          audioStream,
+          {mimeType}
+        )
+
+      : new MediaRecorder(
+          audioStream
+        );
+
+  }catch(error){
+
+    statusEl.textContent =
+      "❌ Recording شروع نہیں ہو سکی";
+
+    statusEl.style.color =
+      "#b32121";
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  audioChunks = [];
+
+
+  mediaRecorder.ondataavailable =
+    event => {
+
+      if(
+        event.data &&
+        event.data.size > 0
+      ){
+
+        audioChunks.push(
+          event.data
+        );
+
+      }
+
+    };
+
+
+  mediaRecorder.onstop =
+    async () => {
+
+      const type =
+        mimeType || "audio/webm";
+
+      const audioBlob =
+        new Blob(
+          audioChunks,
+          {type}
+        );
+
+      audioChunks = [];
+
+
+      /*
+        صرف واقعی آواز ہو تو API کو بھیجیں
+      */
+
+      if(
+        hasSound() &&
+        audioBlob.size > 5000
+      ){
+
+        await sendToGroq(
+          audioBlob
+        );
+
+      }else{
+
+        console.log(
+          "🔇 خاموشی — Groq کو نہیں بھیجا"
+        );
+
+      }
+
+
+      /*
+        recording جاری ہے تو
+        اگلا chunk شروع کریں
+      */
+
+      if(listening){
+
+        recordChunk();
+
+      }
+
+    };
+
+
+  mediaRecorder.start();
+
+
+  statusEl.textContent =
+    "🎙️ ریکارڈنگ جاری ہے… پڑھتے جائیں";
+
+  statusEl.style.color =
+    "#176b3a";
+
+}
+
+
+/* ============================================================
+   START RECORDING
+============================================================ */
+
+async function startRecording(){
+
+  try{
+
+    /*
+      پہلے پرانا stream صاف کریں
+    */
+
+    if(audioStream){
+
+      audioStream
+        .getTracks()
+        .forEach(
+          t => t.stop()
+        );
+
+    }
+
+
+    audioStream =
+      await navigator.mediaDevices
+        .getUserMedia({
+          audio:{
+            echoCancellation:true,
+            noiseSuppression:true,
+            autoGainControl:true
+          }
+        });
+
+
+    listening = true;
+
+    nextTargetIndex = 0;
+
+    lastRecognizedWord = "";
+
+    processingChunk = false;
+
+
+    /*
+      پرانی highlighting صاف
+    */
+
+    const spans =
+      ayahEl.querySelectorAll(
+        ".word"
+      );
+
+    spans.forEach(
+      s =>
+        s.classList.remove(
+          "ok",
+          "bad",
+          "current",
+          "skipped"
+        )
+    );
+
+
+    updateProgress();
+
+    showCurrentWord();
+
+
+    /*
+      Audio analyser
+    */
+
+    audioContext =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
+
+
+    const source =
+      audioContext
+        .createMediaStreamSource(
+          audioStream
+        );
+
+
+    analyser =
+      audioContext.createAnalyser();
+
+    analyser.fftSize =
+      512;
+
+    source.connect(
+      analyser
+    );
+
+
+    /*
+      پہلا chunk
+    */
 
     recordChunk();
 
-    recordingTimer = setInterval(() => {
-      if(listening && mediaRecorder && mediaRecorder.state === "recording"){
-        mediaRecorder.stop();
-      }
-    }, 6000); // 6 سیکنڈ کے chunk
+
+    /*
+      ہر 6 سیکنڈ بعد موجودہ chunk stop
+      ہوگا، پھر onstop اگلا شروع کرے گا۔
+    */
+
+    recordingTimer =
+      setInterval(
+        () => {
+
+          if(
+            listening &&
+            mediaRecorder &&
+            mediaRecorder.state ===
+              "recording"
+          ){
+
+            mediaRecorder.stop();
+
+          }
+
+        },
+        CHUNK_SECONDS * 1000
+      );
+
 
   }catch(error){
-    statusEl.textContent = "❌ مائیک کی اجازت نہیں ملی";
-    statusEl.style.color = "#b32121";
+
+    listening = false;
+
+    statusEl.textContent =
+      "❌ مائیک کی اجازت نہیں ملی یا microphone دستیاب نہیں۔";
+
+    statusEl.style.color =
+      "#b32121";
+
+    console.error(error);
+
   }
+
 }
 
-function recordChunk(){
-  if(!listening) return;
 
-  mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
-  audioChunks = [];
+/* ============================================================
+   STOP RECORDING
+============================================================ */
 
-  mediaRecorder.ondataavailable = (event) => {
-    if(event.data.size > 0) audioChunks.push(event.data);
-  };
+function stopRecording(
+  showStatus = true
+){
 
-  mediaRecorder.onstop = async () => {
-    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-    audioChunks = [];
-
-    // ✅ صرف تب بھیجیں جب واقعی آواز ہو
-    if(hasSound() && audioBlob.size > 5000){
-      await sendToGroq(audioBlob);
-    } else {
-      console.log("🔇 خاموشی — Groq پر نہیں بھیجا");
-    }
-
-    if(listening) recordChunk();
-  };
-
-  mediaRecorder.start();
-  statusEl.textContent = "🎙️ ریکارڈنگ جاری ہے… پڑھتے جائیں";
-  statusEl.style.color = "#176b3a";
-}
-
-function stopRecording(){
   listening = false;
-  if(recordingTimer){ clearInterval(recordingTimer); recordingTimer = null; }
-  if(mediaRecorder && mediaRecorder.state === "recording"){ mediaRecorder.stop(); }
-  if(audioStream){ audioStream.getTracks().forEach(t => t.stop()); audioStream = null; }
-  if(audioContext){ audioContext.close(); audioContext = null; analyser = null; }
-  statusEl.textContent = "⏹️ سننا بند";
+
+
+  /*
+    timer
+  */
+
+  if(recordingTimer){
+
+    clearInterval(
+      recordingTimer
+    );
+
+    recordingTimer = null;
+
+  }
+
+
+  /*
+    recorder
+  */
+
+  if(
+    mediaRecorder &&
+    mediaRecorder.state ===
+      "recording"
+  ){
+
+    try{
+
+      mediaRecorder.stop();
+
+    }catch(e){}
+
+  }
+
+
+  /*
+    microphone
+  */
+
+  if(audioStream){
+
+    audioStream
+      .getTracks()
+      .forEach(
+        t => t.stop()
+      );
+
+    audioStream = null;
+
+  }
+
+
+  /*
+    AudioContext
+  */
+
+  if(audioContext){
+
+    try{
+
+      audioContext.close();
+
+    }catch(e){}
+
+    audioContext = null;
+
+  }
+
+
+  analyser = null;
+
+
+  if(showStatus){
+
+    statusEl.textContent =
+      "⏹️ سننا بند ہو گیا";
+
+    statusEl.style.color =
+      "#8a6d31";
+
+  }
+
 }
 
-// ---------- بٹنز ----------
-document.getElementById("micTest").onclick = async () => {
+
+/* ============================================================
+   MIC TEST
+============================================================ */
+
+document.getElementById(
+  "micTest"
+).onclick = async () => {
+
   try{
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    stream.getTracks().forEach(t => t.stop());
-    statusEl.textContent = "✅ مائیک کی اجازت مل گئی۔";
-    statusEl.style.color = "#176b3a";
-  }catch(e){
-    statusEl.textContent = "❌ مائیک کی اجازت نہیں ملی۔";
-    statusEl.style.color = "#b32121";
+
+    const stream =
+      await navigator.mediaDevices
+        .getUserMedia({
+          audio:true
+        });
+
+
+    stream
+      .getTracks()
+      .forEach(
+        t => t.stop()
+      );
+
+
+    statusEl.textContent =
+      "✅ مائیک ٹھیک ہے اور اجازت مل گئی۔";
+
+    statusEl.style.color =
+      "#176b3a";
+
+
+  }catch(error){
+
+    statusEl.textContent =
+      "❌ مائیک کی اجازت نہیں ملی۔";
+
+    statusEl.style.color =
+      "#b32121";
+
   }
+
 };
 
-document.getElementById("start").onclick = () => {
-  if(!GROQ_API_KEY || !GROQ_API_KEY.startsWith('gsk_')){
-    keyOverlay.style.display = 'flex';
+
+/* ============================================================
+   START BUTTON
+============================================================ */
+
+document.getElementById(
+  "start"
+).onclick = () => {
+
+  if(
+    !GROQ_API_KEY ||
+    !GROQ_API_KEY.startsWith("gsk_")
+  ){
+
+    keyOverlay.style.display =
+      "flex";
+
     return;
+
   }
+
+
+  /*
+    شروع کرتے وقت مکمل reset
+  */
+
   resetAll();
+
   startRecording();
+
 };
 
-document.getElementById("stop").onclick = stopRecording;
-document.getElementById("reset").onclick = resetAll;
 
-// ---------- شروع ----------
+/* ============================================================
+   STOP
+============================================================ */
+
+document.getElementById(
+  "stop"
+).onclick = () => {
+
+  stopRecording(true);
+
+};
+
+
+/* ============================================================
+   RESET
+============================================================ */
+
+document.getElementById(
+  "reset"
+).onclick = () => {
+
+  resetAll();
+
+};
+
+
+/* ============================================================
+   START
+============================================================ */
+
 renderSurah();
+
+showCurrentWord();
+
 </script>
+
 </body>
 </html>
+```
