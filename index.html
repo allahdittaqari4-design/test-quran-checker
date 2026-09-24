@@ -40,21 +40,17 @@
   </div>
 
   <div class="card small">
-    <b>نوٹ:</b> جب آپ صحیح پڑھیں گے تو الفاظ سبز ہوں گے، اور جب غلط پڑھیں گے تو وہ لفظ لال ہو جائے گا۔ کوئی الگ لکھائی نہیں دکھائی جائے گی۔
+    <b>نوٹ:</b> جب آپ صحیح پڑھیں گے تو الفاظ سبز ہوں گے، اور جب غلط پڑھیں گے تو وہ لفظ لال ہو جائے گا۔
   </div>
 </div>
 
 <script>
-// پوری سورت
 const fullSurah = "وَالسَّمَاءِ ذَاتِ الْبُرُوجِ وَالْيَوْمِ الْمَوْعُودِ وَشَاهِدٍ وَمَشْهُودٍ قُتِلَ أَصْحَابُ الْأُخْدُودِ النَّارِ ذَاتِ الْوَقُودِ إِذْ هُمْ عَلَيْهَا قُعُودٌ وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِالْمُؤْمِنِينَ شُهُودٌ وَمَا نَقَمُوا مِنْهُمْ إِلَّا أَنْ يُؤْمِنُوا بِاللَّهِ الْعَزِيزِ الْحَمِيدِ الَّذِي لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ إِنَّ الَّذِينَ فَتَنُوا الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ ثُمَّ لَمْ يَتُوبُوا فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ الْحَرِيقِ إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ جَنَّاتٌ تَجْرِي مِنْ تَحْتِهَا الْأَنْهَارُ ذَٰلِكَ الْفَوْزُ الْكَبِيرُ إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ وَهُوَ الْغَفُورُ الْوَدُودُ ذُو الْعَرْشِ الْمَجِيدُ فَعَّالٌ لِمَا يُرِيدُ هَلْ أَتَاكَ حَدِيثُ الْجُنُودِ فِرْعَوْنَ وَثَمُودَ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّهُ مِنْ وَرَائِهِمْ مُحِيطٌ بَلْ هُوَ قُرْآنٌ مَجِيدٌ فِي لَوْحٍ مَحْفُوظٍ";
 
-// قرآن کے الفاظ
 let targetWords = [];
-let targetNormalized = []; // صاف شدہ الفاظ
-
+let targetNormalized = [];
 let recognition=null, listening=false;
-let finalText="";
-let interimText="";
+let finalText="", interimText="";
 
 const ayahEl=document.getElementById("ayah");
 const statusEl=document.getElementById("status");
@@ -81,7 +77,37 @@ function removeRepeatedWords(arr){
   return cleaned;
 }
 
-// ✅ قرآن کا ٹیکسٹ دکھائیں (ہر لفظ الگ span میں)
+// ✅ نرم موازنہ: دو الفاظ میں کتنے فیصد مماثلت ہے
+function similarity(a, b){
+  if(a === b) return 1.0;
+  if(!a || !b) return 0.0;
+  const longer = a.length > b.length ? a : b;
+  const shorter = a.length > b.length ? b : a;
+  if(longer.length === 0) return 1.0;
+  // Levenshtein distance
+  const matrix = [];
+  for(let i=0; i<=shorter.length; i++) matrix[i] = [i];
+  for(let j=0; j<=longer.length; j++) matrix[0][j] = j;
+  for(let i=1; i<=shorter.length; i++){
+    for(let j=1; j<=longer.length; j++){
+      const cost = shorter[i-1] === longer[j-1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i-1][j] + 1,
+        matrix[i][j-1] + 1,
+        matrix[i-1][j-1] + cost
+      );
+    }
+  }
+  const distance = matrix[shorter.length][longer.length];
+  return (longer.length - distance) / longer.length;
+}
+
+// ✅ ہر لفظ کا نرم موازنہ (کم از کم 70% مماثلت)
+function fuzzyMatch(target, got){
+  const sim = similarity(target, got);
+  return sim >= 0.7; // 70% یا اس سے زیادہ مماثلت
+}
+
 function renderSurah(){
   const ws = fullSurah.split(" ");
   ayahEl.innerHTML = ws.map((w, idx)=>{
@@ -91,12 +117,10 @@ function renderSurah(){
   targetNormalized = words(fullSurah);
 }
 
-// ✅ صارف کے پڑھے ہوئے الفاظ کے مطابق قرآن کے ٹیکسٹ کو ہائی لائٹ کریں
 function highlightWords(spoken){
   const got = removeRepeatedWords(words(spoken));
   const spans = ayahEl.querySelectorAll(".word");
   
-  // پہلے سب کو reset کریں
   spans.forEach(s => s.classList.remove("ok","bad","current"));
   
   let errors = 0;
@@ -105,26 +129,24 @@ function highlightWords(spoken){
   for(let k=0; k<got.length; k++){
     if(k < targetNormalized.length){
       const span = spans[k];
-      if(targetNormalized[k] === got[k]){
-        span.classList.add("ok"); // صحیح → سبز
+      // ✅ نرم موازنہ استعمال کریں
+      if(fuzzyMatch(targetNormalized[k], got[k])){
+        span.classList.add("ok");
         lastMatchedIndex = k;
       } else {
-        span.classList.add("bad"); // غلط → لال
+        span.classList.add("bad");
         errors++;
       }
     }
   }
   
-  // اگلا لفظ جو صارف پڑھے گا، اسے ہلکا پیلا کریں
   if(lastMatchedIndex + 1 < spans.length && errors === 0){
     spans[lastMatchedIndex + 1].classList.add("current");
   }
   
-  // ✅ صرف غلطی پر پیغام — صحیح پر خاموش
   if(errors > 0){
     statusEl.textContent = `⚠️ ${errors} لفظ(وں) میں غلطی — دوبارہ پڑھیں`;
     statusEl.style.color = "#b32121";
-    // آواز کے ذریعے بھی بتائیں
     if("speechSynthesis" in window){
       const u = new SpeechSynthesisUtterance("غلطی");
       u.lang = "ur-PK"; speechSynthesis.cancel(); speechSynthesis.speak(u);
@@ -134,7 +156,6 @@ function highlightWords(spoken){
     statusEl.style.color = "#176b3a";
   }
   
-  // ✅ پوری سورت مکمل
   if(got.length >= targetNormalized.length && errors === 0){
     statusEl.textContent = "✅ ماشاءاللہ! سورت مکمل";
     statusEl.style.color = "#176b3a";
@@ -169,7 +190,6 @@ function makeRecognition(){
     }
     interimText = interim;
     
-    // ✅ فوری ہائی لائٹ (interim + final دونوں)
     const displayText = (finalText + " " + interimText).trim();
     if(displayText){
       highlightWords(displayText);
@@ -203,7 +223,6 @@ document.getElementById("stop").onclick=()=>{
   statusEl.textContent="سننا بند";
 };
 
-// انیشیئلائز
 renderSurah();
 </script>
 </body>
